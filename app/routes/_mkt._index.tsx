@@ -416,7 +416,7 @@ export default function RouteComponent() {
             >
               <svg viewBox="0 0 24 24" fill="currentColor" className="size-5">
                 <path d={siGithub.path} />
-              </svg>
+            </svg>
               Star on Github
             </Button>
           </div>

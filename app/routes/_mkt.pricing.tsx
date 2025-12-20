@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { RequestContext } from "@/lib/request-context";
 import { invariant } from "@epic-web/invariant";
-import * as Rac from "react-aria-components";
 import * as ReactRouter from "react-router";
 import { siGithub } from "simple-icons";
 import * as z from "zod";
@@ -176,7 +175,7 @@ export default function RouteComponent({
                     {isAnnual ? "/yr" : "/mo"}
                   </span>
                 </div>
-                <Rac.Form method="post" className="mt-6">
+                <ReactRouter.Form method="post" className="mt-6">
                   <Button
                     name="intent"
                     value={lookupKey}
@@ -186,7 +185,7 @@ export default function RouteComponent({
                   >
                     Get {plan.name.charAt(0).toUpperCase() + plan.name.slice(1)}
                   </Button>
-                </Rac.Form>
+                </ReactRouter.Form>
                 <svg
                   viewBox="0 0 39 39"
                   fill="none"
@@ -306,21 +305,22 @@ export default function RouteComponent({
         </p>
         <div className="mt-6 flex flex-col items-center gap-6">
           <div className="flex w-fit gap-4">
-            <a
-              href="https://github.com/mw10013/cloudflare-react-router-saas"
-              target="_blank"
-              rel="noopener noreferrer"
+            <Button
+              variant="outline"
+              render={
+                <a
+                  href="https://github.com/mw10013/cloudflare-react-router-saas"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                />
+              }
+              className="h-11 rounded-full! text-base! font-medium"
             >
-              <Button
-                variant="outline"
-                className="h-11 rounded-full! text-base! font-medium"
-              >
-                <svg viewBox="0 0 24 24" fill="currentColor" className="size-5">
-                  <path d={siGithub.path} />
-                </svg>
-                Star on Github
-              </Button>
-            </a>
+              <svg viewBox="0 0 24 24" fill="currentColor" className="size-5">
+                <path d={siGithub.path} />
+              </svg>
+              Star on Github
+            </Button>
           </div>
         </div>
       </div>

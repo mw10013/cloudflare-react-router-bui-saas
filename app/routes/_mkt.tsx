@@ -2,7 +2,6 @@ import type { Route } from "./+types/_mkt";
 import { AppLogoIcon } from "@/components/app-logo-icon";
 import * as OuiReactRouter from "@/components/oui-react-router-index";
 import { Button } from "@/components/ui/button";
-import * as Oui from "@/components/ui/oui-index";
 import { Separator } from "@/components/ui/oui-index";
 import { RequestContext } from "@/lib/request-context";
 import * as ReactRouter from "react-router";
@@ -71,9 +70,9 @@ function Header() {
             <OuiReactRouter.ReactRouterThemeToggleButton />
             <Separator orientation="vertical" className="mx-1 h-6 min-h-6" />
             {routeLoaderData?.sessionUser ? (
-              <Oui.Button
+              <Button
                 variant="outline"
-                onPress={() =>
+                onClick={() =>
                   void submit(
                     {},
                     { method: "post", action: ReactRouter.href("/signout") },
@@ -81,7 +80,7 @@ function Header() {
                 }
               >
                 Sign Out
-              </Oui.Button>
+              </Button>
             ) : (
               <Button
                 variant="default"

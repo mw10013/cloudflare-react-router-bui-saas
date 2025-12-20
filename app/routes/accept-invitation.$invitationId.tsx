@@ -1,4 +1,5 @@
 import type { Route } from "./+types/accept-invitation.$invitationId";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -6,7 +7,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import * as Oui from "@/components/ui/oui-index";
 import { RequestContext } from "@/lib/request-context";
 import { invariant } from "@epic-web/invariant";
 import * as Rac from "react-aria-components";
@@ -75,17 +75,17 @@ export default function RouteComponent({ loaderData }: Route.ComponentProps) {
             validationBehavior="aria"
             className="flex justify-end gap-6"
           >
-            <Oui.Button type="submit" name="intent" value="accept">
+            <Button type="submit" name="intent" value="accept">
               Accept
-            </Oui.Button>
-            <Oui.Button
+            </Button>
+            <Button
               type="submit"
               name="intent"
               value="reject"
               variant="destructive"
             >
               Reject
-            </Oui.Button>
+            </Button>
           </Rac.Form>
         </CardContent>
       </Card>

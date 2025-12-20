@@ -1,5 +1,5 @@
 <h1 align="center">
-<code>Cloudflare React Router Saas</code>
+<code>Cloudflare React Router Base UI SaaS</code>
 </h1>
 
 <div align="center">
@@ -7,7 +7,7 @@
   Lightweight saas template packed with essential functionality for Cloudflare and React Router
   </p>
   <p>
-  Cloudflare • React Router • Better Auth • Stripe • Oui (React Aria Components with Shadcn characteristics) • SES
+  Cloudflare • React Router • Better Auth • Stripe • Shadcn with Base UI • SES
   </p>
   <p>
     <a href="https://crrbuis.devxo.workers.dev/">Demo</a>
@@ -42,7 +42,7 @@
   - Customer and subscription oversight
 
 - **UI/UX Components:**
-  - Shadcn UI components with React Aria Components integration
+  - Shadcn with Base UI
   - Theme switching (light/dark/system) with persistence
 
 - **Testing Infrastructure:**
@@ -124,6 +124,13 @@ pnpm test:e2e
     - Deploy command: pnpm exec wrangler deploy
 - Storage & databases: crrbuis-d1-production: Settings
   - Enable read replication
+
+## Shandcn with Base UI
+
+```
+pnpm dlx shadcn@latest add --overwrite all
+pnpm dlx shadcn@latest add --overwrite accordion alert-dialog alert aspect-ratio avatar badge breadcrumb button-group button calendar card carousel chart checkbox collapsible combobox command context-menu dialog drawer dropdown-menu empty field input-group input item label pagination popover radio-group select separator sidebar sonner spinner table textarea toggle tooltip
+```
 
 ## Oui
 

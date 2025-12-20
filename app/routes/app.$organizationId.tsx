@@ -4,18 +4,29 @@ import type { Route } from "./+types/app.$organizationId";
 import * as React from "react";
 import { AppLogoIcon } from "@/components/app-logo-icon";
 import { Button } from "@/components/ui/button";
-import * as Oui from "@/components/ui/oui-index";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
   SidebarProvider,
+  SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { RequestContext } from "@/lib/request-context";
 import { invariant } from "@epic-web/invariant";
 import { ChevronsUpDown, LogOut } from "lucide-react";
-import * as Rac from "react-aria-components";
 import * as ReactRouter from "react-router";
 
 const organizationMiddleware: Route.MiddlewareFunction = async ({
@@ -74,7 +85,7 @@ export default function RouteComponent({
         user={user}
       />
       <main className="flex h-svh w-full flex-col overflow-x-hidden">
-        <Oui.SidebarTrigger />
+        <SidebarTrigger />
         <ReactRouter.Outlet />
       </main>
     </SidebarProvider>
@@ -130,7 +141,18 @@ export function AppSidebar({
         </div>
       </SidebarHeader>
       <SidebarContent>
-        <Oui.SidebarTree aria-label="Organization Navigation" items={items} />
+        <SidebarMenu>
+          {items.map((item) => (
+            <SidebarMenuItem key={item.id}>
+              <SidebarMenuButton
+                render={<ReactRouter.Link to={item.href} />}
+                data-testid={item["data-testid"]}
+              >
+                {item.id}
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
+        </SidebarMenu>
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={user} />
@@ -146,39 +168,36 @@ export function OrganizationSwitcher({
   organizations: Organization[];
   organization: Organization;
 }) {
-  const navigate = ReactRouter.useNavigate();
   return (
-    <Rac.MenuTrigger>
-      <Oui.Button
-        variant="ghost"
-        className="h-auto flex-1 items-center justify-between p-0 text-left font-medium data-hovered:bg-transparent"
-      >
-        <div className="grid leading-tight">
-          <span className="truncate font-medium">{organization.name}</span>
-        </div>
-        <ChevronsUpDown className="text-muted-foreground ml-2 size-4" />
-      </Oui.Button>
-      <Oui.Popover>
-        <Oui.Menu
-          className="min-w-56 rounded-lg"
-          onAction={(key: React.Key) => void navigate(`/app/${String(key)}`)}
-        >
-          <Rac.MenuSection>
-            <Oui.MenuHeader>Switch Organization</Oui.MenuHeader>
-            {organizations.map((org) => (
-              <Oui.MenuItem
-                key={org.id}
-                id={org.id}
-                textValue={org.name}
-                className="p-2"
-              >
-                {org.name}
-              </Oui.MenuItem>
-            ))}
-          </Rac.MenuSection>
-        </Oui.Menu>
-      </Oui.Popover>
-    </Rac.MenuTrigger>
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        render={(props) => (
+          <Button
+            {...props}
+            variant="ghost"
+            className="h-auto flex-1 items-center justify-between p-0 text-left font-medium data-hovered:bg-transparent"
+          >
+            <div className="grid leading-tight">
+              <span className="truncate font-medium">{organization.name}</span>
+            </div>
+            <ChevronsUpDown className="text-muted-foreground ml-2 size-4" />
+          </Button>
+        )}
+      />
+      <DropdownMenuContent>
+        <DropdownMenuGroup>
+          <DropdownMenuLabel>Switch Organization</DropdownMenuLabel>
+          {organizations.map((org) => (
+            <DropdownMenuItem
+              key={org.id}
+              render={<ReactRouter.Link to={`/app/${org.id}`} />}
+            >
+              {org.name}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
@@ -191,36 +210,39 @@ export function NavUser({
 }) {
   const submit = ReactRouter.useSubmit();
   return (
-    <Rac.MenuTrigger>
-      <Oui.SidebarButton>
-        <div className="grid flex-1 text-left text-sm leading-tight">
-          <span className="truncate font-medium">{user.email}</span>
-        </div>
-        <ChevronsUpDown className="ml-auto size-4" />
-      </Oui.SidebarButton>
-      <Oui.Popover>
-        <Oui.Menu className="min-w-56 rounded-lg">
-          <Rac.MenuSection>
-            <Oui.MenuHeader className="truncate px-1 py-1.5 text-center text-sm font-medium">
-              {user.email}
-            </Oui.MenuHeader>
-          </Rac.MenuSection>
-          <Oui.MenuSeparator />
-          <Oui.MenuItem
-            id="signOut"
-            textValue="Sign Out"
-            onAction={() =>
-              void submit(
-                {},
-                { method: "post", action: ReactRouter.href("/signout") },
-              )
-            }
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        render={(props) => (
+          <SidebarMenuButton
+            {...props}
+            className="h-12 w-full justify-start overflow-hidden rounded-md p-2 text-left text-sm font-normal"
           >
-            <LogOut className="mr-2 size-4" />
-            Sign Out
-          </Oui.MenuItem>
-        </Oui.Menu>
-      </Oui.Popover>
-    </Rac.MenuTrigger>
+            <div className="grid flex-1 text-left text-sm leading-tight">
+              <span className="truncate font-medium">{user.email}</span>
+            </div>
+            <ChevronsUpDown className="ml-auto size-4" />
+          </SidebarMenuButton>
+        )}
+      />
+      <DropdownMenuContent>
+        <DropdownMenuGroup>
+          <DropdownMenuLabel className="truncate px-1 py-1.5 text-center text-sm font-medium">
+            {user.email}
+          </DropdownMenuLabel>
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          onClick={() =>
+            void submit(
+              {},
+              { method: "post", action: ReactRouter.href("/signout") },
+            )
+          }
+        >
+          <LogOut className="mr-2 size-4" />
+          Sign Out
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

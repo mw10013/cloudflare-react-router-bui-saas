@@ -1,7 +1,6 @@
 import type { Route as MktRoute } from "./+types/_mkt"; // Import type from parent route
-
+import { Button } from "@/components/ui/button";
 import * as Oui from "@/components/ui/oui-index";
-import * as Rac from "react-aria-components";
 import * as ReactRouter from "react-router";
 import { siGithub } from "simple-icons";
 
@@ -58,21 +57,22 @@ export default function RouteComponent() {
               Get Started
             </Oui.Link>
           )}
-
-          <Rac.Link
-            href="https://github.com/mw10013/cloudflare-react-router-saas"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={Oui.buttonClassName(
-              { variant: "outline" },
-              "h-11 rounded-full! text-base! font-medium",
-            )}
+          <Button
+            variant="outline"
+            render={
+              <a
+                href="https://github.com/mw10013/cloudflare-react-router-saas"
+                target="_blank"
+                rel="noopener noreferrer"
+              />
+            }
+            className="h-11 rounded-full! text-base! font-medium"
           >
             <svg viewBox="0 0 24 24" fill="currentColor" className="size-5">
               <path d={siGithub.path} />
             </svg>
             Star on Github
-          </Rac.Link>
+          </Button>
         </div>
       </div>
       <div className="flex w-full flex-col items-center md:flex-row">
@@ -407,20 +407,22 @@ export default function RouteComponent() {
         </p>
         <div className="mt-6 flex flex-col items-center gap-6">
           <div className="flex w-fit gap-4">
-            <Rac.Link
-              href="https://github.com/mw10013/cloudflare-react-router-saas"
-              target="_blank"
-              rel="noopener noreferrer"
-              className={Oui.buttonClassName(
-                { variant: "outline" },
-                "h-11 rounded-full! text-base! font-medium",
-              )}
+            <Button
+              variant="outline"
+              render={
+                <a
+                  href="https://github.com/mw10013/cloudflare-react-router-saas"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                />
+              }
+              className="h-11 rounded-full! text-base! font-medium"
             >
               <svg viewBox="0 0 24 24" fill="currentColor" className="size-5">
                 <path d={siGithub.path} />
               </svg>
               Star on Github
-            </Rac.Link>
+            </Button>
           </div>
           <p className="text-muted-foreground text-sm">MIT licensed.</p>
         </div>

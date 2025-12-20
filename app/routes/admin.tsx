@@ -1,5 +1,6 @@
 import type { Route } from "./+types/admin";
 import { AppLogoIcon } from "@/components/app-logo-icon";
+import { Button } from "@/components/ui/button";
 import * as Oui from "@/components/ui/oui-index";
 import {
   Sidebar,
@@ -76,13 +77,14 @@ export function AppSidebar({ user }: { user: { email: string } }) {
   return (
     <Sidebar>
       <SidebarHeader className="items-center justify-center">
-        <Rac.Link
-          href="/"
+        <Button
+          variant="ghost"
+          size="icon"
           aria-label="Home"
-          className={Oui.buttonClassName({ variant: "ghost", size: "icon" })}
+          render={<ReactRouter.Link to="/" />}
         >
           <AppLogoIcon className="text-primary size-7" />
-        </Rac.Link>
+        </Button>
       </SidebarHeader>
       <SidebarContent>
         <Oui.SidebarTree aria-label="Admin Navigation" items={items} />

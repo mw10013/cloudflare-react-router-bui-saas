@@ -1,4 +1,5 @@
 import type { Route } from "./+types/app.$organizationId.billing";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -11,6 +12,7 @@ import { RequestContext } from "@/lib/request-context";
 import { invariant } from "@epic-web/invariant";
 import * as Rac from "react-aria-components";
 import { redirect } from "react-router";
+import * as ReactRouter from "react-router";
 import * as z from "zod";
 
 export async function loader({
@@ -198,12 +200,12 @@ export default function RouteComponent({
               <p className="text-muted-foreground text-sm">
                 No active subscription for this organization.
               </p>
-              <Rac.Link
-                href="/pricing"
-                className={Oui.buttonClassName({ variant: "outline" })}
+              <Button
+                variant="outline"
+                render={<ReactRouter.Link to="/pricing" />}
               >
                 Pricing
-              </Rac.Link>
+              </Button>
             </div>
           )}
         </CardContent>

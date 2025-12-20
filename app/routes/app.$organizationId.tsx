@@ -3,6 +3,7 @@ import type { User } from "better-auth/types";
 import type { Route } from "./+types/app.$organizationId";
 import * as React from "react";
 import { AppLogoIcon } from "@/components/app-logo-icon";
+import { Button } from "@/components/ui/button";
 import * as Oui from "@/components/ui/oui-index";
 import {
   Sidebar,
@@ -114,13 +115,14 @@ export function AppSidebar({
     <Sidebar>
       <SidebarHeader>
         <div className="flex w-full items-center gap-2 p-2">
-          <Rac.Link
-            href="/"
+          <Button
+            variant="ghost"
+            size="icon"
             aria-label="Home"
-            className={Oui.buttonClassName({ variant: "ghost", size: "icon" })}
+            render={<ReactRouter.Link to="/" />}
           >
             <AppLogoIcon className="text-primary size-7" />
-          </Rac.Link>
+          </Button>
           <OrganizationSwitcher
             organizations={organizations}
             organization={organization}

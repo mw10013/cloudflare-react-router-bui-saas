@@ -1,10 +1,10 @@
 import type { Route } from "./+types/_mkt";
 import { AppLogoIcon } from "@/components/app-logo-icon";
 import * as OuiReactRouter from "@/components/oui-react-router-index";
+import { Button } from "@/components/ui/button";
 import * as Oui from "@/components/ui/oui-index";
 import { Separator } from "@/components/ui/oui-index";
 import { RequestContext } from "@/lib/request-context";
-import * as Rac from "react-aria-components";
 import * as ReactRouter from "react-router";
 import { siGithub } from "simple-icons";
 
@@ -86,15 +86,13 @@ function Header() {
                 Sign Out
               </Oui.Button>
             ) : (
-              <Rac.Link
-                href={ReactRouter.href("/login")}
-                className={Oui.buttonClassName({
-                  variant: "default",
-                  size: "sm",
-                })}
+              <Button
+                variant="default"
+                size="sm"
+                render={<ReactRouter.Link to="/login" />}
               >
                 Sign in / Sign up
-              </Rac.Link>
+              </Button>
             )}
           </div>
         </div>
@@ -109,22 +107,22 @@ function GitHubRepoLink({
   className?: React.HTMLAttributes<SVGElement>["className"];
 }) {
   return (
-    <Rac.Link
+    <Button
+      variant="ghost"
+      className={className}
       aria-label="GitHub repo"
-      href="https://github.com/mw10013/cloudflare-react-router-saas"
-      target="_blank"
-      rel="noopener noreferrer"
-      className={Oui.buttonClassName(
-        {
-          variant: "ghost",
-        },
-        className,
-      )}
+      render={
+        <a
+          href="https://github.com/mw10013/cloudflare-react-router-saas"
+          target="_blank"
+          rel="noopener noreferrer"
+        />
+      }
     >
       <svg viewBox="0 0 24 24" fill="currentColor" className="size-5">
         <path d={siGithub.path} />
       </svg>
-    </Rac.Link>
+    </Button>
   );
 }
 

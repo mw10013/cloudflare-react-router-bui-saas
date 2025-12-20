@@ -2,6 +2,7 @@
 
 import type { Route } from "./+types/_mkt.pricing";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import * as Oui from "@/components/ui/oui-index";
 import { RequestContext } from "@/lib/request-context";
 import { invariant } from "@epic-web/invariant";
@@ -308,20 +309,22 @@ export default function RouteComponent({
         </p>
         <div className="mt-6 flex flex-col items-center gap-6">
           <div className="flex w-fit gap-4">
-            <Rac.Link
-              href="https://github.com/mw10013/cloudflare-react-router-saas"
-              target="_blank"
-              rel="noopener noreferrer"
-              className={Oui.buttonClassName(
-                { variant: "outline" },
-                "h-11 rounded-full! text-base! font-medium",
-              )}
+            <Button
+              variant="outline"
+              render={
+                <a
+                  href="https://github.com/mw10013/cloudflare-react-router-saas"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                />
+              }
+              className="h-11 rounded-full! text-base! font-medium"
             >
               <svg viewBox="0 0 24 24" fill="currentColor" className="size-5">
                 <path d={siGithub.path} />
               </svg>
               Star on Github
-            </Rac.Link>
+            </Button>
           </div>
         </div>
       </div>

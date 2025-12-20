@@ -19,6 +19,7 @@ export default defineConfig({
     cloudflare({ viteEnvironment: { name: "ssr" } }),
     tailwindcss(),
     reactRouter(),
-    tsconfigPaths(),
+    // Limit to main tsconfig.json to avoid parsing configs in refs/
+    tsconfigPaths({ projects: ["./tsconfig.json"] }),
   ],
 });

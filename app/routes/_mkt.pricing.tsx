@@ -3,7 +3,7 @@
 import type { Route } from "./+types/_mkt.pricing";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import * as Oui from "@/components/ui/oui-index";
+import { Switch } from "@/components/ui/switch";
 import { RequestContext } from "@/lib/request-context";
 import { invariant } from "@epic-web/invariant";
 import * as Rac from "react-aria-components";
@@ -143,9 +143,9 @@ export default function RouteComponent({
         />
         <div className="bg-secondary absolute -top-5 left-1/2 z-10 flex -translate-x-1/2 items-center gap-6 rounded-full p-2 px-3">
           <span className="text-sm font-medium">Monthly</span>
-          <Oui.Switch
-            isSelected={isAnnual}
-            onChange={setIsAnnual}
+          <Switch
+            checked={isAnnual}
+            onCheckedChange={setIsAnnual}
             aria-label="Annual pricing"
             className="scale-150"
           />
@@ -177,7 +177,7 @@ export default function RouteComponent({
                   </span>
                 </div>
                 <Rac.Form method="post" className="mt-6">
-                  <Oui.Button
+                  <Button
                     name="intent"
                     value={lookupKey}
                     type="submit"
@@ -185,7 +185,7 @@ export default function RouteComponent({
                     data-testid={plan.name}
                   >
                     Get {plan.name.charAt(0).toUpperCase() + plan.name.slice(1)}
-                  </Oui.Button>
+                  </Button>
                 </Rac.Form>
                 <svg
                   viewBox="0 0 39 39"
@@ -306,22 +306,21 @@ export default function RouteComponent({
         </p>
         <div className="mt-6 flex flex-col items-center gap-6">
           <div className="flex w-fit gap-4">
-            <Button
-              variant="outline"
-              render={
-                <a
-                  href="https://github.com/mw10013/cloudflare-react-router-saas"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                />
-              }
-              className="h-11 rounded-full! text-base! font-medium"
+            <a
+              href="https://github.com/mw10013/cloudflare-react-router-saas"
+              target="_blank"
+              rel="noopener noreferrer"
             >
-              <svg viewBox="0 0 24 24" fill="currentColor" className="size-5">
-                <path d={siGithub.path} />
-              </svg>
-              Star on Github
-            </Button>
+              <Button
+                variant="outline"
+                className="h-11 rounded-full! text-base! font-medium"
+              >
+                <svg viewBox="0 0 24 24" fill="currentColor" className="size-5">
+                  <path d={siGithub.path} />
+                </svg>
+                Star on Github
+              </Button>
+            </a>
           </div>
         </div>
       </div>

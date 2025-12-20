@@ -43,29 +43,26 @@ function Header() {
     <header className="bg-background/95 sticky top-0 z-10 w-full backdrop-blur">
       <div className="flex h-16 items-center justify-between gap-2">
         <div className="flex items-center gap-12">
-          <Oui.Link
-            href={ReactRouter.href("/")}
-            className="flex items-center gap-1"
-          >
+          <ReactRouter.Link to="/" className="flex items-center gap-1">
             <AppLogoIcon className="size-6 fill-current" />
             <span className="text-xl font-extrabold">CRRBUIS</span>
             <span className="bg-primary relative top-1 size-1.5" />
-          </Oui.Link>
+          </ReactRouter.Link>
           <div className="hidden items-center gap-6 md:flex">
-            <Oui.Link
-              href={ReactRouter.href("/pricing")}
+            <ReactRouter.Link
+              to="/pricing"
               className="data-hovered:text-primary text-muted-foreground font-medium"
             >
               Pricing
-            </Oui.Link>
-            <Oui.Link
+            </ReactRouter.Link>
+            <a
               href="https://github.com/mw10013/cloudflare-react-router-saas"
               target="_blank"
               rel="noopener noreferrer"
               className="data-hovered:text-primary text-muted-foreground font-medium"
             >
               Documentation
-            </Oui.Link>
+            </a>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -131,14 +128,11 @@ export function Footer() {
     <footer className="mx-auto flex w-full max-w-5xl flex-col gap-8 py-12">
       <div className="grid gap-8 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6">
         <div className="max-w-md space-y-4 md:col-span-2 lg:col-span-4">
-          <Oui.Link
-            href={ReactRouter.href("/")}
-            className="flex items-center gap-1"
-          >
+          <ReactRouter.Link to="/" className="flex items-center gap-1">
             <AppLogoIcon className="size-6 fill-current" />
             <span className="text-xl font-extrabold">CRRBUIS</span>
             <span className="bg-primary relative top-1 size-1.5" />
-          </Oui.Link>
+          </ReactRouter.Link>
           <p className="text-muted-foreground text-sm">
             Build and deploy serverless React Router applications on Cloudflare.
           </p>
@@ -150,14 +144,14 @@ export function Footer() {
           <h4 className="text-sm font-bold">Resources</h4>
           <ul className="space-y-2 text-sm">
             <li>
-              <Oui.Link
+              <a
                 href="https://github.com/mw10013/oui"
                 className="text-muted-foreground data-hovered:text-foreground transition-colors"
                 target="_blank"
                 rel="noopener noreferrer"
               >
                 Oui Components
-              </Oui.Link>
+              </a>
             </li>
           </ul>
         </div>
@@ -165,14 +159,14 @@ export function Footer() {
           <h4 className="text-sm font-bold">Support</h4>
           <ul className="space-y-2 text-sm">
             <li>
-              <Oui.Link
+              <a
                 href="https://github.com/mw10013/cloudflare-react-router-saas"
                 className="text-muted-foreground data-hovered:text-foreground transition-colors"
                 target="_blank"
                 rel="noopener noreferrer"
               >
                 Documentation
-              </Oui.Link>
+              </a>
             </li>
           </ul>
         </div>
@@ -180,14 +174,14 @@ export function Footer() {
       <div className="border-border/40 flex flex-col items-center justify-between gap-4 border-t border-dashed pt-8 sm:flex-row">
         <p className="text-muted-foreground text-sm">
           © {/* */}2025{/* */} CRRBUIS. Built with ♥ by{" "}
-          <Oui.Link
+          <a
             href="https://github.com/mw10013"
             target="_blank"
             rel="noopener noreferrer"
-            className="data-hovered:text-foreground text-muted-foreground font-medium transition-all"
+            className="hover:text-foreground text-muted-foreground font-medium transition-all"
           >
             @mw10013
-          </Oui.Link>
+          </a>
         </p>
       </div>
     </footer>

@@ -82,13 +82,13 @@ export default function RouteComponent({ loaderData }: Route.ComponentProps) {
               <Oui.Cell>{subscription.status}</Oui.Cell>
               <Oui.Cell>
                 {subscription.stripeSubscriptionId ? (
-                  <Oui.Link
+                  <a
                     href={`https://dashboard.stripe.com/subscriptions/${subscription.stripeSubscriptionId}`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
                     {subscription.stripeSubscriptionId}
-                  </Oui.Link>
+                  </a>
                 ) : (
                   ""
                 )}

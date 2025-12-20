@@ -229,12 +229,11 @@ export default function RouteComponent({
         </h1>
         <p className="text-muted-foreground text-2xl leading-normal font-medium text-wrap sm:max-w-[80%] lg:text-3xl">
           Build with{" "}
-          <Oui.Link
+          <a
             href="https://github.com/mw10013/oui"
             target="_blank"
             rel="noopener noreferrer"
-            underline="hover"
-            className="inline-flex items-center gap-1.5"
+            className="inline-flex items-center gap-1.5 hover:underline"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -250,14 +249,13 @@ export default function RouteComponent({
               <circle cx={12} cy={12} r={10} />
             </svg>
             <span className="text-primary font-semibold">Oui</span>
-          </Oui.Link>{" "}
+          </a>{" "}
           components, authenticate users with{" "}
-          <Oui.Link
+          <a
             href="https://www.better-auth.com/"
             target="_blank"
             rel="noopener noreferrer"
-            underline="hover"
-            className="inline-flex items-center gap-1.5"
+            className="inline-flex items-center gap-1.5 hover:underline"
           >
             <svg
               fill="none"
@@ -276,14 +274,13 @@ export default function RouteComponent({
               <path fill="#000" d="M252.762 204.455v92.089h-96.774v-92.089z" />
             </svg>
             <span className="text-primary font-semibold">Better-Auth</span>
-          </Oui.Link>
+          </a>
           , and monetize through{" "}
-          <Oui.Link
+          <a
             href="https://stripe.com/"
             target="_blank"
             rel="noopener noreferrer"
-            underline="hover"
-            className="inline-flex items-center gap-1.5"
+            className="inline-flex items-center gap-1.5 hover:underline"
           >
             <span className="inline-flex items-center gap-1.5">
               <svg
@@ -304,7 +301,7 @@ export default function RouteComponent({
               </svg>
               <span className="text-primary font-semibold">Stripe</span>
             </span>
-          </Oui.Link>
+          </a>
           .
         </p>
         <div className="mt-6 flex flex-col items-center gap-6">

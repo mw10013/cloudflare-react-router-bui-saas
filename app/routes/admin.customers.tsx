@@ -81,26 +81,26 @@ export default function RouteComponent({ loaderData }: Route.ComponentProps) {
               <Oui.Cell>{customer.email}</Oui.Cell>
               <Oui.Cell>
                 {customer.stripeCustomerId ? (
-                  <Oui.Link
+                  <a
                     href={`https://dashboard.stripe.com/customers/${customer.stripeCustomerId}`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
                     {customer.stripeCustomerId}
-                  </Oui.Link>
+                  </a>
                 ) : (
                   ""
                 )}
               </Oui.Cell>
               <Oui.Cell>
                 {customer.subscription?.stripeSubscriptionId ? (
-                  <Oui.Link
+                  <a
                     href={`https://dashboard.stripe.com/subscriptions/${customer.subscription.stripeSubscriptionId}`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
                     {customer.subscription.stripeSubscriptionId}
-                  </Oui.Link>
+                  </a>
                 ) : (
                   ""
                 )}

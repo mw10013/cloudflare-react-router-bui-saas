@@ -54,9 +54,9 @@ export default function RouteComponent({ loaderData }: Route.ComponentProps) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center">
         You need to sign in or sign up to accept this invitation.
-        <Oui.Link href="/login" className="mt-4">
+        <ReactRouter.Link to="/login" className="mt-4">
           Go to Login
-        </Oui.Link>
+        </ReactRouter.Link>
       </div>
     );
   }

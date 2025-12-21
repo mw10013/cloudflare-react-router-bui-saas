@@ -1,12 +1,12 @@
 import type { Route } from "./+types/profile-form-example";
 import {
-  mergeForm,
-  useForm,
-  useTransform,
   createServerValidate,
   formOptions,
   initialFormState,
+  mergeForm,
   ServerValidateError,
+  useForm,
+  useTransform,
 } from "@tanstack/react-form-remix";
 import { Form } from "react-router";
 import { z } from "zod";
@@ -26,9 +26,12 @@ const formConfig = formOptions({
 const serverValidate = createServerValidate({
   ...formConfig,
   onServerValidate: ({ value }) => {
+    console.log(`onServerValidate: value: ${JSON.stringify(value)}`);
     if (value.username) {
+      console.log(`onServerValidate: username present, returning error`);
       return { fields: { username: "That username is already taken." } };
     }
+    console.log(`onServerValidate: no error`);
   },
 });
 
@@ -36,16 +39,25 @@ const serverValidate = createServerValidate({
 export async function action({ request }: Route.ActionArgs) {
   try {
     const formData = await request.formData();
+    console.log(`formData: ${JSON.stringify(Object.fromEntries(formData))}`);
+    console.log(`action: will serverValidate`);
     const validated = await serverValidate(formData);
+    console.log(
+      `action: did serverValidate: validated: ${JSON.stringify(validated)}`,
+    );
     return validated;
   } catch (err) {
     if (err instanceof ServerValidateError) {
       console.log(
-        "server errorMap.onServer.fields:",
-        err.formState.errorMap.onServer?.fields,
+        `action: ServerValidateError: err.formState: ${JSON.stringify(
+          err.formState,
+        )}`,
+        // err.formState.errorMap.onServer?.fields,
       );
       return err.formState;
     }
+
+    console.error(err);
     throw err;
   }
 }
@@ -64,7 +76,7 @@ export default function ProfileFormExample({
 
   return (
     <main style={{ padding: 16 }}>
-      <Form method="post" onSubmit={() => void form.handleSubmit()}>
+      <Form method="post" onSubmit={() => form.handleSubmit()}>
         <form.Field
           name="username"
           children={(field) => {
@@ -86,15 +98,19 @@ export default function ProfileFormExample({
                 />
 
                 {isInvalid && field.state.meta.errors.length > 0 && (
-                  <p style={{ color: "crimson" }}>
-                    {field.state.meta.errors.join(", ")}
-                  </p>
+                  <div className="text-destructive text-sm">
+                    <pre>
+                      {JSON.stringify(field.state.meta.errors, null, 2)}
+                    </pre>
+                  </div>
                 )}
 
-                <button type="submit">Submit</button>
+                <button type="submit" disabled={!form.state.canSubmit}>
+                  Submit
+                </button>
 
                 <pre
-                  style={{ fontSize: 12, background: "#f6f6f6", padding: 8 }}
+                // style={{ fontSize: 12, background: "#f6f6f6", padding: 8 }}
                 >
                   {JSON.stringify(
                     {

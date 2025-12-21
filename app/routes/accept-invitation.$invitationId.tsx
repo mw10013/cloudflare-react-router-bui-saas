@@ -9,7 +9,6 @@ import {
 } from "@/components/ui/card";
 import { RequestContext } from "@/lib/request-context";
 import { invariant } from "@epic-web/invariant";
-import * as Rac from "react-aria-components";
 import * as ReactRouter from "react-router";
 import * as z from "zod";
 
@@ -70,11 +69,7 @@ export default function RouteComponent({ loaderData }: Route.ComponentProps) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Rac.Form
-            method="post"
-            validationBehavior="aria"
-            className="flex justify-end gap-6"
-          >
+          <ReactRouter.Form method="post" className="flex justify-end gap-6">
             <Button type="submit" name="intent" value="accept">
               Accept
             </Button>
@@ -86,7 +81,7 @@ export default function RouteComponent({ loaderData }: Route.ComponentProps) {
             >
               Reject
             </Button>
-          </Rac.Form>
+          </ReactRouter.Form>
         </CardContent>
       </Card>
     </div>

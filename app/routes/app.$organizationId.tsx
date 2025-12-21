@@ -1,7 +1,6 @@
 import type { Organization } from "better-auth/plugins";
 import type { User } from "better-auth/types";
 import type { Route } from "./+types/app.$organizationId";
-import * as React from "react";
 import { AppLogoIcon } from "@/components/app-logo-icon";
 import { Button } from "@/components/ui/button";
 import {

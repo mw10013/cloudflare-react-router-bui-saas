@@ -11,6 +11,8 @@ import {
 import { Form } from "react-router";
 import { z } from "zod";
 
+// https://github.com/TanStack/form/issues/1704
+
 // Schema
 const schema = z.object({
   username: z.string().min(3, "Min 3 chars"),
@@ -76,7 +78,7 @@ export default function ProfileFormExample({
 
   return (
     <main style={{ padding: 16 }}>
-      <Form method="post" onSubmit={() => form.handleSubmit()}>
+      <Form method="post" onSubmit={() => void form.handleSubmit()}>
         <form.Field
           name="username"
           children={(field) => {
@@ -109,16 +111,12 @@ export default function ProfileFormExample({
                   Submit
                 </button>
 
-                <pre
-                // style={{ fontSize: 12, background: "#f6f6f6", padding: 8 }}
-                >
+                <pre>
                   {JSON.stringify(
                     {
-                      "field.meta.isTouched": field.state.meta.isTouched,
-                      "field.meta.isValid": field.state.meta.isValid,
-                      "field.meta.errors": field.state.meta.errors, // stays empty
-                      "form.errorMap.onServer.fields":
-                        form.state.errorMap.onServer?.fields ?? null, // contains { username: '...' }
+                      actionData,
+                      "field.state": field.state,
+                      "form.state": form.state,
                     },
                     null,
                     2,

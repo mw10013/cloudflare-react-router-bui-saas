@@ -9,19 +9,53 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import {
   Item,
   ItemActions,
   ItemContent,
   ItemDescription,
   ItemTitle,
 } from "@/components/ui/item";
-import * as Oui from "@/components/ui/oui-index";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import * as Domain from "@/lib/domain";
 import { RequestContext } from "@/lib/request-context";
 import { invariant } from "@epic-web/invariant";
-import * as Rac from "react-aria-components";
+import { useForm } from "@tanstack/react-form";
 import * as ReactRouter from "react-router";
 import * as z from "zod";
+
+const inviteSchema = z.object({
+  emails: z
+    .string()
+    .transform((v) =>
+      v
+        .split(",")
+        .map((i) => i.trim())
+        .filter(Boolean),
+    )
+    .pipe(
+      z
+        .array(z.email("Please provide valid email addresses."))
+        .min(1, "At least one email is required")
+        .max(10, "Maximum 10 emails allowed"),
+    ),
+  role: Domain.MemberRole.extract(
+    ["member", "admin"],
+    "Role must be Member or Admin.",
+  ),
+});
 
 export async function loader({
   request,
@@ -140,6 +174,15 @@ export default function RouteComponent({
 }: Route.ComponentProps) {
   const submit = ReactRouter.useSubmit();
   const formRef = React.useRef<HTMLFormElement>(null);
+  const form = useForm({
+    defaultValues: {
+      emails: "",
+      role: "member" as "member" | "admin",
+    },
+    validators: {
+      onBlur: inviteSchema,
+    },
+  });
 
   // Reset form after successful invite
   React.useEffect(() => {
@@ -164,11 +207,9 @@ export default function RouteComponent({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Rac.Form
+          <form
             ref={formRef}
             id="invite-form"
-            method="post"
-            validationErrors={actionData?.validationErrors}
             onSubmit={(e) => {
               e.preventDefault();
               const nativeEvent = e.nativeEvent;
@@ -182,50 +223,69 @@ export default function RouteComponent({
             }}
             className="grid"
           >
-            <Oui.FieldGroup>
-              <Oui.TextField name="emails" isDisabled={!canManageInvitations}>
-                <Oui.FieldLabel>Email Addresses</Oui.FieldLabel>
-                <Oui.Input
-                  type="text"
-                  placeholder="user1@example.com, user2@example.com"
-                />
-                <Oui.FieldError />
-              </Oui.TextField>
-              <Oui.Select
-                name="role"
-                isDisabled={!canManageInvitations}
-                defaultValue={"member"}
-                className="w-fit"
-              >
-                <Oui.FieldLabel>Role</Oui.FieldLabel>
-                <Oui.SelectButton>
-                  <Oui.SelectValue />
-                </Oui.SelectButton>
-                <Oui.Popover>
-                  <Rac.ListBox
-                    items={
-                      [
-                        { id: "member", name: "Member" },
-                        { id: "admin", name: "Admin" },
-                      ] as const
-                    }
-                  >
-                    {(item) => <Oui.ListBoxItem>{item.name}</Oui.ListBoxItem>}
-                  </Rac.ListBox>
-                </Oui.Popover>
-              </Oui.Select>
+            <FieldGroup>
+              <form.Field name="emails">
+                {(field) => {
+                  const isInvalid =
+                    field.state.meta.isTouched && !field.state.meta.isValid;
+                  return (
+                    <Field data-invalid={isInvalid}>
+                      <FieldLabel>Email Addresses</FieldLabel>
+                      <Input
+                        value={field.state.value}
+                        onChange={(e) => {
+                          field.handleChange(e.target.value);
+                        }}
+                        onBlur={field.handleBlur}
+                        placeholder="user1@example.com, user2@example.com"
+                        disabled={!canManageInvitations}
+                        aria-invalid={isInvalid}
+                      />
+                      {isInvalid && (
+                        <FieldError errors={field.state.meta.errors} />
+                      )}
+                    </Field>
+                  );
+                }}
+              </form.Field>
+              <form.Field name="role">
+                {(field) => {
+                  const isInvalid =
+                    field.state.meta.isTouched && !field.state.meta.isValid;
+                  return (
+                    <Field data-invalid={isInvalid} className="w-fit">
+                      <FieldLabel>Role</FieldLabel>
+                      <Select
+                        value={field.state.value}
+                        onValueChange={field.handleChange}
+                        disabled={!canManageInvitations}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="member">Member</SelectItem>
+                          <SelectItem value="admin">Admin</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      {isInvalid && (
+                        <FieldError errors={field.state.meta.errors} />
+                      )}
+                    </Field>
+                  );
+                }}
+              </form.Field>
               <Button
                 type="submit"
                 name="intent"
                 value="invite"
-                variant="outline"
-                disabled={!canManageInvitations}
+                disabled={!canManageInvitations || form.state.isSubmitting}
                 className="self-end"
               >
                 Invite
               </Button>
-            </Oui.FieldGroup>
-          </Rac.Form>
+            </FieldGroup>
+          </form>
         </CardContent>
       </Card>
       <Card className="gap-4">

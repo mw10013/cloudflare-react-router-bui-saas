@@ -1,5 +1,6 @@
 import type { Route } from "./+types/app.$organizationId.invitations";
 import * as React from "react";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -16,7 +17,6 @@ import {
 } from "@/components/ui/item";
 import * as Oui from "@/components/ui/oui-index";
 import * as Domain from "@/lib/domain";
-import { onSubmitReactRouter } from "@/lib/oui-on-submit-react-router";
 import { RequestContext } from "@/lib/request-context";
 import { invariant } from "@epic-web/invariant";
 import * as Rac from "react-aria-components";
@@ -169,7 +169,17 @@ export default function RouteComponent({
             id="invite-form"
             method="post"
             validationErrors={actionData?.validationErrors}
-            onSubmit={onSubmitReactRouter(submit)}
+            onSubmit={(e) => {
+              e.preventDefault();
+              const nativeEvent = e.nativeEvent;
+              const submitter =
+                nativeEvent instanceof SubmitEvent &&
+                (nativeEvent.submitter instanceof HTMLButtonElement ||
+                  nativeEvent.submitter instanceof HTMLInputElement)
+                  ? nativeEvent.submitter
+                  : null;
+              void submit(submitter ?? e.currentTarget, { method: "post" });
+            }}
             className="grid"
           >
             <Oui.FieldGroup>
@@ -204,16 +214,16 @@ export default function RouteComponent({
                   </Rac.ListBox>
                 </Oui.Popover>
               </Oui.Select>
-              <Oui.Button
+              <Button
                 type="submit"
                 name="intent"
                 value="invite"
                 variant="outline"
-                isDisabled={!canManageInvitations}
+                disabled={!canManageInvitations}
                 className="self-end"
               >
                 Invite
-              </Oui.Button>
+              </Button>
             </Oui.FieldGroup>
           </Rac.Form>
         </CardContent>
@@ -227,7 +237,7 @@ export default function RouteComponent({
         </CardHeader>
         <CardContent>
           {invitations.length > 0 ? (
-            <Rac.GridList
+            <div
               aria-label="Organization invitations"
               data-testid="invitations-list"
             >
@@ -238,7 +248,7 @@ export default function RouteComponent({
                   canManageInvitations={canManageInvitations}
                 />
               ))}
-            </Rac.GridList>
+            </div>
           ) : (
             <p className="text-muted-foreground text-sm">
               No invitations have been sent for this organization yet.
@@ -260,46 +270,44 @@ function InvitationItem({
   const fetcher = ReactRouter.useFetcher<Route.ComponentProps["actionData"]>();
   const pending = fetcher.state !== "idle";
   return (
-    <Oui.CardGridListItem textValue={invitation.email}>
-      <Item size="sm" className="gap-4 px-0">
-        <ItemContent>
-          <ItemTitle>{invitation.email}</ItemTitle>
-          <ItemDescription>
-            {invitation.role} — {invitation.status}
-            {invitation.status === "pending" && (
-              <>
-                <br />
-                <span className="text-xs">
-                  Expires:{" "}
-                  {new Date(invitation.expiresAt)
-                    .toISOString()
-                    .replace("T", " ")
-                    .slice(0, 16)}{" "}
-                  UTC
-                </span>
-              </>
-            )}
-          </ItemDescription>
-        </ItemContent>
-        {canManageInvitations && invitation.status === "pending" && (
-          <ItemActions>
-            <fetcher.Form method="post">
-              <input type="hidden" name="invitationId" value={invitation.id} />
-              <Oui.Button
-                type="submit"
-                name="intent"
-                value="cancel"
-                variant="outline"
-                size="sm"
-                aria-label={`Cancel invitation for ${invitation.email}`}
-                isDisabled={pending}
-              >
-                Cancel
-              </Oui.Button>
-            </fetcher.Form>
-          </ItemActions>
-        )}
-      </Item>
-    </Oui.CardGridListItem>
+    <Item size="sm" className="gap-4 px-0">
+      <ItemContent>
+        <ItemTitle>{invitation.email}</ItemTitle>
+        <ItemDescription>
+          {invitation.role} — {invitation.status}
+          {invitation.status === "pending" && (
+            <>
+              <br />
+              <span className="text-xs">
+                Expires:{" "}
+                {new Date(invitation.expiresAt)
+                  .toISOString()
+                  .replace("T", " ")
+                  .slice(0, 16)}{" "}
+                UTC
+              </span>
+            </>
+          )}
+        </ItemDescription>
+      </ItemContent>
+      {canManageInvitations && invitation.status === "pending" && (
+        <ItemActions>
+          <fetcher.Form method="post">
+            <input type="hidden" name="invitationId" value={invitation.id} />
+            <Button
+              type="submit"
+              name="intent"
+              value="cancel"
+              variant="outline"
+              size="sm"
+              aria-label={`Cancel invitation for ${invitation.email}`}
+              disabled={pending}
+            >
+              Cancel
+            </Button>
+          </fetcher.Form>
+        </ItemActions>
+      )}
+    </Item>
   );
 }

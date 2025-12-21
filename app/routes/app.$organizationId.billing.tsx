@@ -7,10 +7,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import * as Oui from "@/components/ui/oui-index";
 import { RequestContext } from "@/lib/request-context";
 import { invariant } from "@epic-web/invariant";
-import * as Rac from "react-aria-components";
 import { redirect } from "react-router";
 import * as ReactRouter from "react-router";
 import * as z from "zod";
@@ -149,48 +147,48 @@ export default function RouteComponent({
                   </p>
                 </div>
                 <div className="flex gap-2">
-                  <Rac.Form method="post">
-                    <Oui.Button
+                  <ReactRouter.Form method="post">
+                    <Button
                       type="submit"
                       name="intent"
                       value="manage"
                       variant="outline"
                     >
                       Manage Billing
-                    </Oui.Button>
-                  </Rac.Form>
+                    </Button>
+                  </ReactRouter.Form>
                   {activeSubscription.cancelAtPeriodEnd ? (
-                    <Rac.Form method="post">
+                    <ReactRouter.Form method="post">
                       <input
                         type="hidden"
                         name="subscriptionId"
                         value={activeSubscription.id}
                       />
-                      <Oui.Button
+                      <Button
                         type="submit"
                         name="intent"
                         value="restore"
                         variant="default"
                       >
                         Restore Subscription
-                      </Oui.Button>
-                    </Rac.Form>
+                      </Button>
+                    </ReactRouter.Form>
                   ) : (
-                    <Rac.Form method="post">
+                    <ReactRouter.Form method="post">
                       <input
                         type="hidden"
                         name="subscriptionId"
                         value={activeSubscription.id}
                       />
-                      <Oui.Button
+                      <Button
                         type="submit"
                         name="intent"
                         value="cancel"
                         variant="destructive"
                       >
                         Cancel Subscription
-                      </Oui.Button>
-                    </Rac.Form>
+                      </Button>
+                    </ReactRouter.Form>
                   )}
                 </div>
               </div>

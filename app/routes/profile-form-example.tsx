@@ -1,31 +1,22 @@
 import type { Route } from "./+types/profile-form-example";
-import {
-  createServerValidate,
-  formOptions,
-  initialFormState,
-  mergeForm,
-  ServerValidateError,
-  useForm,
-  useTransform,
-} from "@tanstack/react-form-remix";
-import { Form } from "react-router";
+import * as React from "react";
+import * as TanFormRemix from "@tanstack/react-form-remix";
+import * as ReactRouter from "react-router";
 import { z } from "zod";
 
 // https://github.com/TanStack/form/issues/1704
 
-// Schema
 const schema = z.object({
   username: z.string().min(3, "Min 3 chars"),
 });
 
-// Client form config
-const formConfig = formOptions({
+const formConfig = TanFormRemix.formOptions({
   defaultValues: { username: "" },
   validators: { onSubmit: schema },
 });
 
 // Server validation that always fails username
-const serverValidate = createServerValidate({
+const serverValidate = TanFormRemix.createServerValidate({
   ...formConfig,
   onServerValidate: ({ value }) => {
     console.log(`onServerValidate: value: ${JSON.stringify(value)}`);
@@ -37,24 +28,23 @@ const serverValidate = createServerValidate({
   },
 });
 
-// Action
 export async function action({ request }: Route.ActionArgs) {
   try {
     const formData = await request.formData();
-    console.log(`formData: ${JSON.stringify(Object.fromEntries(formData))}`);
-    console.log(`action: will serverValidate`);
+    console.log(
+      `action: will serverValidate: formData: ${JSON.stringify(Object.fromEntries(formData))}`,
+    );
     const validated = await serverValidate(formData);
     console.log(
       `action: did serverValidate: validated: ${JSON.stringify(validated)}`,
     );
-    return validated;
+    return null;
   } catch (err) {
-    if (err instanceof ServerValidateError) {
+    if (err instanceof TanFormRemix.ServerValidateError) {
       console.log(
         `action: ServerValidateError: err.formState: ${JSON.stringify(
           err.formState,
         )}`,
-        // err.formState.errorMap.onServer?.fields,
       );
       return err.formState;
     }
@@ -64,21 +54,50 @@ export async function action({ request }: Route.ActionArgs) {
   }
 }
 
-// Component
 export default function ProfileFormExample({
   actionData,
 }: Route.ComponentProps) {
-  const form = useForm({
+  const submit = ReactRouter.useSubmit();
+  const onSubmitMeta: { readonly formEl?: HTMLFormElement } = {};
+  const form = TanFormRemix.useForm({
     ...formConfig,
-    transform: useTransform(
-      (base) => mergeForm(base, actionData ?? initialFormState),
-      [actionData],
-    ),
+    onSubmitMeta,
+    onSubmit: ({ meta }) => {
+      if (!meta.formEl) return;
+      void submit(meta.formEl);
+    },
   });
+
+  React.useEffect(() => {
+    if (actionData?.errorMap) {
+      form.setErrorMap(actionData.errorMap);
+    }
+  }, [actionData, form]);
+
+  const formErrors = TanFormRemix.useStore(
+    form.store,
+    (formState) => formState.errors,
+  );
 
   return (
     <main style={{ padding: 16 }}>
-      <Form method="post" onSubmit={() => void form.handleSubmit()}>
+      <ReactRouter.Form
+        method="post"
+        onSubmit={(e) => {
+          e.preventDefault();
+          void form.handleSubmit({ formEl: e.currentTarget });
+        }}
+      >
+        {formErrors.length > 0 && (
+          <h2>
+            Form Errors:
+            <pre>{JSON.stringify(formErrors, null, 2)}</pre>
+          </h2>
+        )}
+        {/* {formErrors.map((error) => (
+          <p key={error as never as string}>{error}</p>
+        ))} */}
+
         <form.Field
           name="username"
           children={(field) => {
@@ -126,7 +145,7 @@ export default function ProfileFormExample({
             );
           }}
         />
-      </Form>
+      </ReactRouter.Form>
     </main>
   );
 }

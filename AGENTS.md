@@ -20,6 +20,7 @@
 - **TanStack Form**: `refs/tan-form/docs/` (Markdown files)
 - **Shadcn UI**: `refs/shadcn/apps/v4/content/docs/` (MDX files)
 - **Base UI**: `refs/base-ui/docs/src/app/(docs)/(content)/react/` (MDX files in subdirs)
+- **React Router**: `refs/react-router/docs/` (Markdown files)
 
 ## TypeScript Guidelines
 

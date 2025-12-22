@@ -35,7 +35,8 @@
     "refs:shadcn": "rm -rf refs/shadcn && mkdir -p refs/shadcn && curl -L https://github.com/shadcn-ui/ui/archive/refs/tags/shadcn@3.6.2.tar.gz | tar -xz -C refs/shadcn --strip-components=1",
     "refs:tan-form": "rm -rf refs/tan-form && mkdir -p refs/tan-form && curl -L https://github.com/TanStack/form/archive/refs/tags/@tanstack/react-form@1.27.6.tar.gz | tar -xz -C refs/tan-form --strip-components=1",
     "refs:base-ui": "rm -rf refs/base-ui && mkdir -p refs/base-ui && curl -L https://github.com/mui/base-ui/archive/refs/tags/v1.0.0.tar.gz | tar -xz -C refs/base-ui --strip-components=1",
-    "refs:oui": "rm -rf refs/oui && mkdir -p refs/oui && curl -L https://github.com/mw10013/oui/archive/refs/heads/main.tar.gz | tar -xz -C refs/oui --strip-components=1"
+    "refs:oui": "rm -rf refs/oui && mkdir -p refs/oui && curl -L https://github.com/mw10013/oui/archive/refs/heads/main.tar.gz | tar -xz -C refs/oui --strip-components=1",
+    "refs:react-router": "rm -rf refs/react-router && mkdir -p refs/react-router && curl -L https://github.com/remix-run/react-router/archive/refs/tags/react-router@7.11.0.tar.gz | tar -xz -C refs/react-router --strip-components=1"
   },
   "dependencies": {
     "@base-ui/react": "1.0.0",
@@ -63,7 +64,7 @@
     "react-day-picker": "9.13.0",
     "react-dom": "19.2.0",
     "react-resizable-panels": "3.0.6",
-    "react-router": "7.9.4",
+    "react-router": "7.11.0",
     "recharts": "2.15.4",
     "remix-themes": "2.0.4",
     "simple-icons": "15.16.1",
@@ -79,8 +80,8 @@
     "@eslint/js": "9.38.0",
     "@ianvs/prettier-plugin-sort-imports": "4.7.0",
     "@playwright/test": "1.56.1",
-    "@react-router/dev": "7.9.4",
-    "@react-router/fs-routes": "7.9.4",
+    "@react-router/dev": "7.11.0",
+    "@react-router/fs-routes": "7.11.0",
     "@tailwindcss/vite": "4.1.16",
     "@types/node": "22.13.14",
     "@types/react": "19.2.2",

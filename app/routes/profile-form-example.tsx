@@ -19,25 +19,16 @@ const formConfig = TanFormRemix.formOptions({
 const serverValidate = TanFormRemix.createServerValidate({
   ...formConfig,
   onServerValidate: ({ value }) => {
-    console.log(`onServerValidate: value: ${JSON.stringify(value)}`);
     if (value.username) {
-      console.log(`onServerValidate: username present, returning error`);
       return { fields: { username: "That username is already taken." } };
     }
-    console.log(`onServerValidate: no error`);
   },
 });
 
 export async function action({ request }: Route.ActionArgs) {
   try {
     const formData = await request.formData();
-    console.log(
-      `action: will serverValidate: formData: ${JSON.stringify(Object.fromEntries(formData))}`,
-    );
-    const validated = await serverValidate(formData);
-    console.log(
-      `action: did serverValidate: validated: ${JSON.stringify(validated)}`,
-    );
+    await serverValidate(formData);
     return null;
   } catch (err) {
     if (err instanceof TanFormRemix.ServerValidateError) {
@@ -58,13 +49,13 @@ export default function ProfileFormExample({
   actionData,
 }: Route.ComponentProps) {
   const submit = ReactRouter.useSubmit();
-  const onSubmitMeta: { readonly formEl?: HTMLFormElement } = {};
+  const onSubmitMeta: { readonly submitTarget?: ReactRouter.SubmitTarget } = {};
   const form = TanFormRemix.useForm({
     ...formConfig,
     onSubmitMeta,
     onSubmit: ({ meta }) => {
-      if (!meta.formEl) return;
-      void submit(meta.formEl);
+      if (!meta.submitTarget) return;
+      void submit(meta.submitTarget);
     },
   });
 
@@ -74,10 +65,30 @@ export default function ProfileFormExample({
     }
   }, [actionData, form]);
 
-  const formErrors = TanFormRemix.useStore(
-    form.store,
-    (formState) => formState.errors,
-  );
+  // const formErrors = TanFormRemix.useStore(
+  //   form.store,
+  //   (formState) => formState.errors,
+  // );
+
+  const formLevelErrors = TanFormRemix.useStore(form.store, (formState) => {
+    const toMessages = (error: unknown): readonly string[] => {
+      if (!error) return [];
+      if (typeof error === "string") return [error];
+      if (TanFormRemix.isGlobalFormValidationError(error)) {
+        const formError = error.form;
+        if (!formError) return [];
+        return [
+          typeof formError === "string" ? formError : JSON.stringify(formError),
+        ];
+      }
+      return [];
+    };
+
+    return [
+      ...toMessages(formState.errorMap.onServer),
+      ...toMessages(formState.errorMap.onSubmit),
+    ];
+  });
 
   return (
     <main style={{ padding: 16 }}>
@@ -85,13 +96,13 @@ export default function ProfileFormExample({
         method="post"
         onSubmit={(e) => {
           e.preventDefault();
-          void form.handleSubmit({ formEl: e.currentTarget });
+          void form.handleSubmit({ submitTarget: e.currentTarget });
         }}
       >
-        {formErrors.length > 0 && (
+        {formLevelErrors.length > 0 && (
           <h2>
             Form Errors:
-            <pre>{JSON.stringify(formErrors, null, 2)}</pre>
+            <pre>{JSON.stringify(formLevelErrors, null, 2)}</pre>
           </h2>
         )}
         {/* {formErrors.map((error) => (

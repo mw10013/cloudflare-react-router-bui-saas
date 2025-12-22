@@ -1,10 +1,11 @@
-import type { Route } from "./+types/profile-form-example";
+import type { Route } from "./+types/form";
 import * as React from "react";
 import * as TanFormRemix from "@tanstack/react-form-remix";
 import * as ReactRouter from "react-router";
 import { z } from "zod";
 
 // https://github.com/TanStack/form/issues/1704
+// https://github.com/TanStack/form/discussions/1686
 
 const schema = z.object({
   username: z.string().min(3, "Min 3 chars"),
@@ -15,7 +16,6 @@ const formConfig = TanFormRemix.formOptions({
   validators: { onSubmit: schema },
 });
 
-// Server validation that always fails username
 const serverValidate = TanFormRemix.createServerValidate({
   ...formConfig,
   onServerValidate: ({ value }) => {
@@ -49,13 +49,10 @@ export default function ProfileFormExample({
   actionData,
 }: Route.ComponentProps) {
   const submit = ReactRouter.useSubmit();
-  const onSubmitMeta: { readonly submitTarget?: ReactRouter.SubmitTarget } = {};
   const form = TanFormRemix.useForm({
     ...formConfig,
-    onSubmitMeta,
-    onSubmit: async ({ meta }) => {
-      if (!meta.submitTarget) return;
-      await submit(meta.submitTarget);
+    onSubmit: async ({ value }) => {
+      await submit(value, { method: "POST" });
     },
   });
 

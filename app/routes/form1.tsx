@@ -34,9 +34,6 @@ export default function RouteComponent() {
     defaultValues: { age: 0 },
     // validators: { onSubmit: schema },
     validators: {
-      onChange: () => {
-        return undefined;
-      },
       onSubmit({ value }) {
         if (value.age < 5) {
           // return "form: onSubmit: Must be 5 or older to sign";
@@ -80,7 +77,7 @@ export default function RouteComponent() {
           >
             <FieldGroup>
               {formErrors.length > 0 && (
-                <Alert variant="destructive" className="mb-6">
+                <Alert variant="destructive">
                   <AlertCircle className="h-4 w-4" />
                   <AlertTitle>Form Errors</AlertTitle>
                   <AlertDescription>
@@ -112,7 +109,6 @@ export default function RouteComponent() {
                         name={field.name}
                         type="number"
                         value={field.state.value}
-                        // onBlur={field.handleBlur}
                         onChange={(e) => {
                           field.handleChange(e.target.valueAsNumber);
                         }}
@@ -144,18 +140,33 @@ export default function RouteComponent() {
         <CardFooter>
           <FieldGroup>
             <Field orientation="horizontal">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => {
-                  form.reset();
-                }}
+              <form.Subscribe
+                selector={(formState) => [
+                  formState.canSubmit,
+                  formState.isSubmitting,
+                ]}
               >
-                Reset
-              </Button>
-              <Button type="submit" form="age-verification-form">
-                Submit
-              </Button>
+                {([canSubmit, isSubmitting]) => (
+                  <>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        form.reset();
+                      }}
+                    >
+                      Reset
+                    </Button>
+                    <Button
+                      type="submit"
+                      form="age-verification-form"
+                      disabled={!canSubmit}
+                    >
+                      {isSubmitting ? "..." : "Submit"}
+                    </Button>
+                  </>
+                )}
+              </form.Subscribe>
             </Field>
             <pre className="text-sm">
               {JSON.stringify(

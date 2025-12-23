@@ -20,7 +20,11 @@ const serverValidate = TanFormRemix.createServerValidate({
   ...formConfig,
   onServerValidate: ({ value }) => {
     if (value.username) {
-      return { fields: { username: "That username is already taken." } };
+      return {
+        form: "server: form: Username is already taken.",
+        // form: ["Username is already taken.", "Too bad."],
+        fields: { username: "server: field: That username is already taken." },
+      };
     }
   },
 });
@@ -63,30 +67,10 @@ export default function RouteComponent({ actionData }: Route.ComponentProps) {
     }
   }, [actionData, form]);
 
-  // const formErrors = TanFormRemix.useStore(
-  //   form.store,
-  //   (formState) => formState.errors,
-  // );
-
-  const formLevelErrors = TanFormRemix.useStore(form.store, (formState) => {
-    const toMessages = (error: unknown): readonly string[] => {
-      if (!error) return [];
-      if (typeof error === "string") return [error];
-      if (TanFormRemix.isGlobalFormValidationError(error)) {
-        const formError = error.form;
-        if (!formError) return [];
-        return [
-          typeof formError === "string" ? formError : JSON.stringify(formError),
-        ];
-      }
-      return [];
-    };
-
-    return [
-      ...toMessages(formState.errorMap.onServer),
-      ...toMessages(formState.errorMap.onSubmit),
-    ];
-  });
+  const formErrors = TanFormRemix.useStore(
+    form.store,
+    (formState) => formState.errors,
+  );
 
   return (
     <main style={{ padding: 16 }}>
@@ -98,12 +82,21 @@ export default function RouteComponent({ actionData }: Route.ComponentProps) {
           void form.handleSubmit();
         }}
       >
-        {formLevelErrors.length > 0 && (
+        {formErrors.length > 0 && (
           <h2>
-            Form Errors:
-            <pre>{JSON.stringify(formLevelErrors, null, 2)}</pre>
+            Form Errors (all):
+            <pre>{JSON.stringify(formErrors, null, 2)}</pre>
           </h2>
         )}
+        {formErrors.length > 0 && (
+          <h2>
+            Form Errors (individual):
+            {formErrors.map((error) => (
+              <pre>{JSON.stringify(error, null, 2)}</pre>
+            ))}
+          </h2>
+        )}
+
         {/* {formErrors.map((error) => (
           <p key={error as never as string}>{error}</p>
         ))} */}

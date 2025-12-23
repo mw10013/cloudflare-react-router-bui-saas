@@ -1,19 +1,19 @@
 // import type { Route } from "./+types/form1";
 import * as TanFormRemix from "@tanstack/react-form-remix";
 import * as ReactRouter from "react-router";
-import { z } from "zod";
+// import { z } from "zod";
 
 // https://github.com/TanStack/form/issues/1704
 // https://github.com/TanStack/form/discussions/1686
 
-const schema = z.object({
-  username: z.string().min(3, "Min 3 chars"),
-});
+// const schema = z.object({
+//   username: z.string().min(3, "Min 3 chars"),
+// });
 
 export default function RouteComponent() {
   const form = TanFormRemix.useForm({
-    defaultValues: { username: "" },
-    validators: { onSubmit: schema },
+    defaultValues: { age: 0 },
+    // validators: { onSubmit: schema },
     onSubmit: ({ value }) => {
       console.log(`onSubmit: value: ${JSON.stringify(value)}`);
     },
@@ -49,21 +49,26 @@ export default function RouteComponent() {
         )} */}
 
         <form.Field
-          name="username"
+          name="age"
+          validators={{
+            onChange: ({ value }) =>
+              value < 3 ? "You must be 3 or older to make an account" : undefined,
+          }}
           children={(field) => {
             const isInvalid =
               field.state.meta.isTouched && !field.state.meta.isValid;
 
             return (
               <div style={{ display: "grid", gap: 8, maxWidth: 360 }}>
-                <label htmlFor={field.name}>Username</label>
+                <label htmlFor={field.name}>Age</label>
                 <input
                   id={field.name}
                   name={field.name}
+                  type="number"
                   value={field.state.value}
                   // onBlur={field.handleBlur}
                   onChange={(e) => {
-                    field.handleChange(e.target.value);
+                    field.handleChange(e.target.valueAsNumber);
                   }}
                   aria-invalid={isInvalid || undefined}
                   className="rounded border px-2 py-1"

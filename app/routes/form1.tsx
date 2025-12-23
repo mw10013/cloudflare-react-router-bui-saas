@@ -1,6 +1,7 @@
 // import type { Route } from "./+types/form1";
 import * as TanFormRemix from "@tanstack/react-form-remix";
 import * as ReactRouter from "react-router";
+
 // import { z } from "zod";
 
 // https://github.com/TanStack/form/issues/1704
@@ -14,6 +15,14 @@ export default function RouteComponent() {
   const form = TanFormRemix.useForm({
     defaultValues: { age: 0 },
     // validators: { onSubmit: schema },
+    validators: {
+      onSubmit({ value }) {
+        if (value.age < 5) {
+          return "form: onSubmit: Must be 5 or older to sign";
+        }
+        return undefined;
+      },
+    },
     onSubmit: ({ value }) => {
       console.log(`onSubmit: value: ${JSON.stringify(value)}`);
     },
@@ -33,13 +42,13 @@ export default function RouteComponent() {
           void form.handleSubmit();
         }}
       >
-        {/* {formErrors.length > 0 && (
+        {formErrors.length > 0 && (
           <h2>
             Form Errors (all):
             <pre>{JSON.stringify(formErrors, null, 2)}</pre>
           </h2>
         )}
-        {formErrors.length > 0 && (
+        {/* {formErrors.length > 0 && (
           <h2>
             Form Errors (individual):
             {formErrors.map((error) => (
@@ -51,8 +60,12 @@ export default function RouteComponent() {
         <form.Field
           name="age"
           validators={{
+            onBlur: ({ value }) =>
+              value < 0 ? "field: onBlur: < 0" : undefined,
             onChange: ({ value }) =>
-              value < 3 ? "You must be 3 or older to make an account" : undefined,
+              value < 3
+                ? "field: onChange: You must be 3 or older to make an account"
+                : undefined,
           }}
           children={(field) => {
             const isInvalid =
@@ -66,7 +79,7 @@ export default function RouteComponent() {
                   name={field.name}
                   type="number"
                   value={field.state.value}
-                  // onBlur={field.handleBlur}
+                  onBlur={field.handleBlur}
                   onChange={(e) => {
                     field.handleChange(e.target.valueAsNumber);
                   }}

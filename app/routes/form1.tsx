@@ -30,7 +30,13 @@ export default function RouteComponent() {
     validators: {
       onSubmit({ value }) {
         if (value.age < 5) {
-          return "form: onSubmit: Must be 5 or older to sign";
+          // return "form: onSubmit: Must be 5 or older to sign";
+          return {
+            form: "form: Must be 5 or older to sign",
+            fields: {
+              age: "form: field: Must be 5 or older to sign",
+            },
+          };
         }
         return undefined;
       },
@@ -39,6 +45,11 @@ export default function RouteComponent() {
       console.log(`onSubmit: value: ${JSON.stringify(value)}`);
     },
   });
+  const {
+    fieldMetaBase: _fieldMetaBase,
+    fieldMeta: _fieldMeta,
+    ...formState
+  } = form.state;
 
   const formErrors = TanFormRemix.useStore(
     form.store,
@@ -91,7 +102,7 @@ export default function RouteComponent() {
                       name={field.name}
                       type="number"
                       value={field.state.value}
-                      onBlur={field.handleBlur}
+                      // onBlur={field.handleBlur}
                       onChange={(e) => {
                         field.handleChange(e.target.valueAsNumber);
                       }}
@@ -104,6 +115,18 @@ export default function RouteComponent() {
                         }))}
                       />
                     )}
+                    <pre className="text-sm">
+                      {JSON.stringify(
+                        {
+                          formErrors,
+                          "field.state": field.state,
+                          // "form.state": form.state,
+                          formState,
+                        },
+                        null,
+                        2,
+                      )}
+                    </pre>
                   </Field>
                 );
               }}
@@ -112,17 +135,6 @@ export default function RouteComponent() {
             <Button type="submit" disabled={!form.state.canSubmit}>
               Submit
             </Button>
-
-            <pre className="text-sm">
-              {JSON.stringify(
-                {
-                  formErrors,
-                  "form.state": form.state,
-                },
-                null,
-                2,
-              )}
-            </pre>
           </FieldGroup>
         </FieldSet>
       </ReactRouter.Form>

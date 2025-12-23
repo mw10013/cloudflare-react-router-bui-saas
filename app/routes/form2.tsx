@@ -32,12 +32,18 @@ export default function RouteComponent() {
   const form = TanFormRemix.useForm({
     defaultValues: { age: 0 },
     validators: {
-      onSubmit: ({ formApi }) => {
+      onSubmit: ({ value, formApi }) => {
         // parseValuesWithSchema will populate form property with any field errors.
         const issues = formApi.parseValuesWithSchema(schema);
         if (issues) {
           // https://tanstack.com/form/latest/docs/framework/react/guides/validation#setting-field-level-errors-from-the-forms-validators
-          return { form: "Form validation failed", fields: issues.fields };
+          return { fields: issues.fields };
+        }
+        if (value.age < 5) {
+          return {
+            form: "form: Must be 5 or older to sign",
+            fields: {},
+          };
         }
       },
     },

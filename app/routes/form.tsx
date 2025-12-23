@@ -28,6 +28,9 @@ const serverValidate = TanFormRemix.createServerValidate({
 export async function action({ request }: Route.ActionArgs) {
   try {
     const formData = await request.formData();
+    console.log(
+      `action: formData: ${JSON.stringify(Object.fromEntries(formData))}`,
+    );
     await serverValidate(formData);
     return null;
   } catch (err) {
@@ -45,9 +48,7 @@ export async function action({ request }: Route.ActionArgs) {
   }
 }
 
-export default function ProfileFormExample({
-  actionData,
-}: Route.ComponentProps) {
+export default function RouteComponent({ actionData }: Route.ComponentProps) {
   const submit = ReactRouter.useSubmit();
   const form = TanFormRemix.useForm({
     ...formConfig,
@@ -91,9 +92,10 @@ export default function ProfileFormExample({
     <main style={{ padding: 16 }}>
       <ReactRouter.Form
         method="post"
+        // navigate={false}
         onSubmit={(e) => {
           e.preventDefault();
-          void form.handleSubmit({ submitTarget: e.currentTarget });
+          void form.handleSubmit();
         }}
       >
         {formLevelErrors.length > 0 && (

@@ -4,8 +4,7 @@
   },
   "typescript.tsdk": "node_modules/typescript/lib",
   // https://github.com/tailwindlabs/tailwindcss-intellisense?tab=readme-ov-file#tailwind-css-v4x-css-entrypoints
-  // "tailwindCSS.experimental.configFile": {
-  // },
+  "tailwindCSS.experimental.configFile": "app/app.css",
   "tailwindCSS.classFunctions": [
     "tw",
     "twMerge",

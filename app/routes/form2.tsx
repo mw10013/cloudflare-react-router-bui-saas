@@ -70,17 +70,24 @@ export default function RouteComponent() {
             }}
           >
             <FieldGroup>
-              {formErrors.length > 0 && (
-                <Alert variant="destructive">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertTitle>Form Errors</AlertTitle>
-                  <AlertDescription>
-                    <pre className="mt-2 font-mono text-sm">
-                      {JSON.stringify(formErrors, null, 2)}
-                    </pre>
-                  </AlertDescription>
-                </Alert>
-              )}
+              <form.Subscribe selector={(formState) => formState.errors}>
+                {(formErrors) =>
+                  formErrors.length > 0 && (
+                    <Alert variant="destructive">
+                      <AlertCircle className="size-4" />
+                      <AlertTitle>Form Errors</AlertTitle>
+                      <AlertDescription>
+                        <ul className="ml-4 flex list-disc flex-col gap-1">
+                          {formErrors.map(
+                            (error, index) =>
+                              error && <li key={index}>{error}</li>,
+                          )}
+                        </ul>
+                      </AlertDescription>
+                    </Alert>
+                  )
+                }
+              </form.Subscribe>
               <form.Field
                 name="age"
                 children={(field) => {

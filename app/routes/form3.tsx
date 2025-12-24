@@ -1,4 +1,5 @@
-// import type { Route } from "./+types/form2";
+import type { Route } from "./+types/form3";
+import * as React from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,9 +29,53 @@ const schema = z.object({
   age: z.number().gte(3, "You must be 3 or older to make an account."),
 });
 
-export default function RouteComponent() {
+const formConfig = TanFormRemix.formOptions({
+  defaultValues: { age: 0 },
+});
+
+const serverValidate = TanFormRemix.createServerValidate({
+  ...formConfig,
+  onServerValidate: ({ value }) => {
+    console.log(
+      `onServerValidate: value: ${JSON.stringify({ value, type: typeof value.age })}`,
+    );
+    if (value.age === 13) {
+      return {
+        form: "server: form: Unlucky age.",
+        fields: { age: { message: "server: field: That age is unlucky." } },
+      };
+    }
+  },
+});
+
+export async function action({ request }: Route.ActionArgs) {
+  try {
+    const formData = await request.formData();
+    console.log(
+      `action: formData: ${JSON.stringify(Object.fromEntries(formData))}`,
+    );
+    await serverValidate(formData, ({ path, output }) =>
+      path === "age" && typeof output === "string" ? Number(output) : output,
+    );
+    return null;
+  } catch (error) {
+    if (error instanceof TanFormRemix.ServerValidateError) {
+      console.log(
+        `action: ServerValidateError: error.formState: ${JSON.stringify(
+          error.formState,
+        )}`,
+      );
+      return error.formState;
+    }
+    console.error(error);
+    throw error;
+  }
+}
+
+export default function RouteComponent({ actionData }: Route.ComponentProps) {
+  const submit = ReactRouter.useSubmit();
   const form = TanFormRemix.useForm({
-    defaultValues: { age: 0 },
+    ...formConfig,
     validators: {
       onSubmit: ({ value, formApi }) => {
         // parseValuesWithSchema will populate form property with any field errors.
@@ -47,10 +92,17 @@ export default function RouteComponent() {
         }
       },
     },
-    onSubmit: ({ value }) => {
+    onSubmit: async ({ value }) => {
       console.log(`onSubmit: value: ${JSON.stringify(value)}`);
+      await submit(value, { method: "POST" });
     },
   });
+
+  React.useEffect(() => {
+    if (actionData?.errorMap) {
+      form.setErrorMap(actionData.errorMap);
+    }
+  }, [actionData, form]);
 
   return (
     <main className="p-4">

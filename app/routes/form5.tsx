@@ -151,7 +151,7 @@ export default function RouteComponent({ actionData }: Route.ComponentProps) {
                         }}
                         aria-invalid={isInvalid}
                       />
-                      {isInvalid && field.state.meta.errors.length > 0 && (
+                      {isInvalid && (
                         <FieldError errors={field.state.meta.errors} />
                       )}
                     </Field>

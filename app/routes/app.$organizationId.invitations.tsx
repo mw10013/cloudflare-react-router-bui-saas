@@ -32,7 +32,7 @@ import {
 import * as Domain from "@/lib/domain";
 import { RequestContext } from "@/lib/request-context";
 import { invariant } from "@epic-web/invariant";
-import { useForm } from "@tanstack/react-form";
+import * as TanFormRemix from "@tanstack/react-form-remix";
 import * as ReactRouter from "react-router";
 import * as z from "zod";
 
@@ -45,12 +45,12 @@ const inviteSchema = z.object({
         .map((i) => i.trim())
         .filter(Boolean),
     )
-    .pipe(
-      z
-        .array(z.email("Please provide valid email addresses."))
-        .min(1, "At least one email is required")
-        .max(10, "Maximum 10 emails allowed"),
-    ),
+    .refine(
+      (emails) => emails.every((email) => z.email().safeParse(email).success),
+      "Please provide valid email addresses.",
+    )
+    .refine((emails) => emails.length >= 1, "At least one email is required")
+    .refine((emails) => emails.length <= 10, "Maximum 10 emails allowed"),
   role: Domain.MemberRole.extract(
     ["member", "admin"],
     "Role must be Member or Admin.",
@@ -91,42 +91,38 @@ export async function action({
   request,
   context,
   params: { organizationId },
-}: Route.ActionArgs): Promise<Oui.AlertFormActionResult> {
+}: Route.ActionArgs) {
   const schema = z.discriminatedUnion("intent", [
     z.object({
       intent: z.literal("cancel"),
       invitationId: z.string().min(1, "Missing invitationId"),
     }),
-    z.object({
+    inviteSchema.extend({
       intent: z.literal("invite"),
-      emails: z
-        .string()
-        .transform((v) =>
-          v
-            .split(",")
-            .map((i) => i.trim())
-            .filter(Boolean),
-        )
-        .pipe(
-          z
-            .array(z.email("Please provide valid email addresses."))
-            .min(1, "At least one email is required")
-            .max(10, "Maximum 10 emails allowed"),
-        ),
-      role: Domain.MemberRole.extract(
-        ["member", "admin"],
-        "Role must be Member or Admin.",
-      ),
     }),
   ]);
-
   const parseResult = schema.safeParse(
     Object.fromEntries(await request.formData()),
   );
   if (!parseResult.success) {
-    const { formErrors: details, fieldErrors: validationErrors } =
-      z.flattenError(parseResult.error);
-    return { success: false, details, validationErrors };
+    const { formErrors, fieldErrors } = z.flattenError(parseResult.error);
+    const errorMap = {
+      onSubmit: {
+        ...(formErrors.length > 0 ? { form: formErrors.join(", ") } : {}),
+        fields: Object.entries(fieldErrors).reduce<
+          Record<string, { message: string }[]>
+        >((acc, [key, messages]) => {
+          acc[key] = messages.map((message) => ({ message }));
+          return acc;
+        }, {}),
+      },
+    };
+    console.log(`action: errorMap: ${JSON.stringify({ errorMap })}`);
+    return { success: false, errorMap };
+
+    // const { formErrors: details, fieldErrors: validationErrors } =
+    //   z.flattenError(parseResult.error);
+    // return { success: false, details, validationErrors };
   }
   const requestContext = context.get(RequestContext);
   invariant(requestContext, "Missing request context.");
@@ -174,13 +170,26 @@ export default function RouteComponent({
 }: Route.ComponentProps) {
   const submit = ReactRouter.useSubmit();
   const formRef = React.useRef<HTMLFormElement>(null);
-  const form = useForm({
+  const form = TanFormRemix.useForm({
     defaultValues: {
       emails: "",
       role: "member" as "member" | "admin",
     },
     validators: {
-      onBlur: inviteSchema,
+      onSubmit: ({ formApi }) => {
+        // parseValuesWithSchema will populate form property with any field errors.
+        const issues = formApi.parseValuesWithSchema(inviteSchema);
+        console.log(`validators: onSubmit: issues: ${JSON.stringify(issues)}`);
+        if (issues) {
+          // https://tanstack.com/form/latest/docs/framework/react/guides/validation#setting-field-level-errors-from-the-forms-validators
+          // Empty string for form so typescript can infer string.
+          return { form: "", fields: issues.fields };
+        }
+      },
+    },
+    onSubmit: async ({ value }) => {
+      console.log(`onSubmit: value: ${JSON.stringify(value)}`);
+      await submit(value, { method: "POST" });
     },
   });
 
@@ -207,36 +216,46 @@ export default function RouteComponent({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form
-            ref={formRef}
+          <ReactRouter.Form
             id="invite-form"
+            method="post"
+            ref={formRef}
             onSubmit={(e) => {
               e.preventDefault();
-              const nativeEvent = e.nativeEvent;
-              const submitter =
-                nativeEvent instanceof SubmitEvent &&
-                (nativeEvent.submitter instanceof HTMLButtonElement ||
-                  nativeEvent.submitter instanceof HTMLInputElement)
-                  ? nativeEvent.submitter
-                  : null;
-              void submit(submitter ?? e.currentTarget, { method: "post" });
+              void form.handleSubmit();
             }}
-            className="grid"
+
+            // onSubmit={(e) => {
+            //   e.preventDefault();
+            //   const nativeEvent = e.nativeEvent;
+            //   const submitter =
+            //     nativeEvent instanceof SubmitEvent &&
+            //     (nativeEvent.submitter instanceof HTMLButtonElement ||
+            //       nativeEvent.submitter instanceof HTMLInputElement)
+            //       ? nativeEvent.submitter
+            //       : null;
+            //   void submit(submitter ?? e.currentTarget, { method: "post" });
+            // }}
           >
             <FieldGroup>
+              <input type="hidden" name="intent" value="invite" />
+
               <form.Field name="emails">
                 {(field) => {
                   const isInvalid =
                     field.state.meta.isTouched && !field.state.meta.isValid;
                   return (
                     <Field data-invalid={isInvalid}>
-                      <FieldLabel>Email Addresses</FieldLabel>
+                      <FieldLabel htmlFor={field.name}>
+                        Email Addresses
+                      </FieldLabel>
                       <Input
+                        id={field.name}
+                        name={field.name}
                         value={field.state.value}
                         onChange={(e) => {
                           field.handleChange(e.target.value);
                         }}
-                        onBlur={field.handleBlur}
                         placeholder="user1@example.com, user2@example.com"
                         disabled={!canManageInvitations}
                         aria-invalid={isInvalid}
@@ -254,10 +273,12 @@ export default function RouteComponent({
                     field.state.meta.isTouched && !field.state.meta.isValid;
                   return (
                     <Field data-invalid={isInvalid} className="w-fit">
-                      <FieldLabel>Role</FieldLabel>
+                      <FieldLabel htmlFor={field.name}>Role</FieldLabel>
                       <Select
                         value={field.state.value}
-                        onValueChange={field.handleChange}
+                        onValueChange={(value) => {
+                          if (value) field.handleChange(value);
+                        }}
                         disabled={!canManageInvitations}
                       >
                         <SelectTrigger>
@@ -279,13 +300,13 @@ export default function RouteComponent({
                 type="submit"
                 name="intent"
                 value="invite"
-                disabled={!canManageInvitations || form.state.isSubmitting}
+                disabled={!canManageInvitations}
                 className="self-end"
               >
                 Invite
               </Button>
             </FieldGroup>
-          </form>
+          </ReactRouter.Form>
         </CardContent>
       </Card>
       <Card className="gap-4">

@@ -37,6 +37,7 @@ import * as ReactRouter from "react-router";
 import * as z from "zod";
 
 const inviteSchema = z.object({
+  intent: z.literal("invite"),
   emails: z
     .string()
     .transform((v) =>
@@ -97,9 +98,7 @@ export async function action({
       intent: z.literal("cancel"),
       invitationId: z.string().min(1, "Missing invitationId"),
     }),
-    inviteSchema.extend({
-      intent: z.literal("invite"),
-    }),
+    inviteSchema,
   ]);
   const parseResult = schema.safeParse(
     Object.fromEntries(await request.formData()),
@@ -119,10 +118,6 @@ export async function action({
     };
     console.log(`action: errorMap: ${JSON.stringify({ errorMap })}`);
     return { success: false, errorMap };
-
-    // const { formErrors: details, fieldErrors: validationErrors } =
-    //   z.flattenError(parseResult.error);
-    // return { success: false, details, validationErrors };
   }
   const requestContext = context.get(RequestContext);
   invariant(requestContext, "Missing request context.");
@@ -169,11 +164,11 @@ export default function RouteComponent({
   actionData,
 }: Route.ComponentProps) {
   const submit = ReactRouter.useSubmit();
-  const formRef = React.useRef<HTMLFormElement>(null);
   const form = TanFormRemix.useForm({
     defaultValues: {
+      intent: "invite" as const,
       emails: "",
-      role: "member" as "member" | "admin",
+      role: "member" as Extract<Domain.MemberRole, "member" | "admin">,
     },
     validators: {
       onSubmit: ({ formApi }) => {
@@ -196,9 +191,9 @@ export default function RouteComponent({
   // Reset form after successful invite
   React.useEffect(() => {
     if (actionData?.success) {
-      formRef.current?.reset();
+      form.reset();
     }
-  }, [actionData]);
+  }, [actionData, form]);
 
   return (
     <div className="flex flex-col gap-8 p-6">
@@ -219,27 +214,21 @@ export default function RouteComponent({
           <ReactRouter.Form
             id="invite-form"
             method="post"
-            ref={formRef}
             onSubmit={(e) => {
               e.preventDefault();
               void form.handleSubmit();
             }}
-
-            // onSubmit={(e) => {
-            //   e.preventDefault();
-            //   const nativeEvent = e.nativeEvent;
-            //   const submitter =
-            //     nativeEvent instanceof SubmitEvent &&
-            //     (nativeEvent.submitter instanceof HTMLButtonElement ||
-            //       nativeEvent.submitter instanceof HTMLInputElement)
-            //       ? nativeEvent.submitter
-            //       : null;
-            //   void submit(submitter ?? e.currentTarget, { method: "post" });
-            // }}
           >
             <FieldGroup>
-              <input type="hidden" name="intent" value="invite" />
-
+              <form.Field name="intent">
+                {(field) => (
+                  <input
+                    name={field.name}
+                    type="hidden"
+                    value={field.state.value}
+                  />
+                )}
+              </form.Field>
               <form.Field name="emails">
                 {(field) => {
                   const isInvalid =

@@ -2,7 +2,7 @@ import type {
   StandardSchemaV1,
   StandardSchemaV1Issue,
 } from "@tanstack/react-form";
-import type { Route } from "./+types/form3";
+import type { Route } from "./+types/form4";
 import * as React from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -29,8 +29,12 @@ import z from "zod";
 // https://github.com/TanStack/form/issues/1704
 // https://github.com/TanStack/form/discussions/1686
 
+const formDataSchema = z.object({
+  age: z.string().transform(Number),
+});
+
 const schema = z.object({
-  age: z.number().gte(3, "You must be 3 or older to make an account."),
+  age: z.int().gte(3, "You must be 3 or older to make an account."),
 });
 
 const schema1 = z.object({
@@ -140,16 +144,67 @@ const serverValidate = TanFormRemix.createServerValidate({
   },
 });
 
+/*
+RouteComponent: useEffect: {
+"actionData": {
+  "errorMap": {
+    "onServer": {
+      "fields": {
+        "age": [
+          {
+            "origin":"number",
+            "code":"too_small",
+            "minimum":7,
+            "inclusive":true,
+            "path":["age"],
+            "message":"You must be 7 or older to make an account."}]}}},  "values":{"age":6},"errors":[]}}
+*/
+
 export async function action({ request }: Route.ActionArgs) {
   try {
     const formData = await request.formData();
     console.log(
       `action: formData: ${JSON.stringify(Object.fromEntries(formData))}`,
     );
-    await serverValidate(formData, ({ path, output }) =>
-      path === "age" && typeof output === "string" ? Number(output) : output,
+    const parseResult = z.safeParse(
+      formDataSchema.pipe(schema1),
+      Object.fromEntries(formData),
     );
-    return null;
+    console.log(`action: parseResult: ${JSON.stringify(parseResult)}`);
+    if (!parseResult.success) {
+      const { formErrors, fieldErrors } = z.flattenError(parseResult.error);
+      console.log(
+        `action: formErrors: ${JSON.stringify({ formErrors, fieldErrors })}`,
+      );
+      const errorMap = {
+        onSubmit: {
+          ...(formErrors.length > 0 ? { form: formErrors } : {}),
+          fields: Object.entries(fieldErrors).reduce<
+            Record<string, { message: string }[]>
+          >((acc, [key, messages]) => {
+            acc[key] = messages.map((message) => ({ message }));
+            return acc;
+          }, {}),
+        },
+      };
+      console.log(`action: errorMap: ${JSON.stringify({ errorMap })}`);
+      return { errorMap };
+    }
+
+    // await serverValidate(formData, ({ path, output }) =>
+    //   path === "age" && typeof output === "string" ? Number(output) : output,
+    // );
+    // return null;
+    // return {
+    //   errorMap: {
+    //     onSubmit: {
+    //       form: "yo",
+    //       fields: {
+    //         age: [{ message: "server: field: That age is unlucky!!!" }],
+    //       },
+    //     },
+    //   },
+    // };
   } catch (error) {
     if (error instanceof TanFormRemix.ServerValidateError) {
       console.log(
@@ -192,6 +247,10 @@ export default function RouteComponent({ actionData }: Route.ComponentProps) {
 
   React.useEffect(() => {
     if (actionData?.errorMap) {
+      console.log(
+        `RouteComponent: useEffect: ${JSON.stringify({ actionData })}`,
+        actionData,
+      );
       form.setErrorMap(actionData.errorMap);
     }
   }, [actionData, form]);

@@ -1,6 +1,5 @@
 import type { Route } from "./+types/admin.users";
 import * as React from "react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -10,13 +9,18 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group";
-import { Label } from "@/components/ui/label";
 import * as Oui from "@/components/ui/oui-index";
 import {
   Pagination,
@@ -26,59 +30,13 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { onSubmitReactRouter } from "@/lib/oui-on-submit-react-router";
 import { RequestContext } from "@/lib/request-context";
 import { invariant } from "@epic-web/invariant";
+import * as TanFormRemix from "@tanstack/react-form-remix";
 import { Search } from "lucide-react";
 import * as Rac from "react-aria-components";
 import * as ReactRouter from "react-router";
 import * as z from "zod";
-
-interface AlertFormActionResult {
-  success: boolean;
-  message?: string;
-  details?: string | string[];
-  validationErrors?: Rac.FormProps["validationErrors"];
-}
-
-/**
- * A shadcn Alert for a form displaying form action result.
- * @param props - Component props including success, message, details.
- */
-function AlertForm({
-  success,
-  message,
-  details,
-  className,
-  ...props
-}: React.ComponentProps<typeof Alert> &
-  Partial<Pick<AlertFormActionResult, "success" | "message" | "details">>) {
-  const detailsArray = Array.isArray(details)
-    ? details
-    : details
-      ? [details]
-      : [];
-  if (success === undefined) return null;
-  if (!message && detailsArray.length === 0) return null;
-
-  return (
-    <Alert
-      data-slot="alert-form"
-      variant={success ? "default" : "destructive"}
-      className={className}
-      {...props}
-    >
-      {message && <AlertTitle>{message}</AlertTitle>}
-      {detailsArray.length > 0 && (
-        <AlertDescription>
-          {detailsArray.map((detail, i) => (
-            <div key={i}>{detail}</div>
-          ))}
-        </AlertDescription>
-      )}
-    </Alert>
-  );
-}
 
 export async function loader({ request, context }: Route.LoaderArgs) {
   const LIMIT = 10;
@@ -121,15 +79,12 @@ export async function loader({ request, context }: Route.LoaderArgs) {
   };
 }
 
-export async function action({
-  request,
-  context,
-}: Route.ActionArgs): Promise<AlertFormActionResult> {
+export async function action({ request, context }: Route.ActionArgs) {
   const schema = z.discriminatedUnion("intent", [
     z.object({
       intent: z.literal("ban"),
       userId: z.string(),
-      banReason: z.string().max(4),
+      banReason: z.string().max(16),
     }),
     z.object({ intent: z.literal("unban"), userId: z.string() }),
     z.object({ intent: z.literal("impersonate"), userId: z.string() }),
@@ -138,9 +93,19 @@ export async function action({
     Object.fromEntries(await request.formData()),
   );
   if (!parseResult.success) {
-    const { formErrors: details, fieldErrors: validationErrors } =
-      z.flattenError(parseResult.error);
-    return { success: false, details, validationErrors };
+    const { formErrors, fieldErrors } = z.flattenError(parseResult.error);
+    const errorMap = {
+      onSubmit: {
+        ...(formErrors.length > 0 ? { form: formErrors.join(", ") } : {}),
+        fields: Object.entries(fieldErrors).reduce<
+          Record<string, { message: string }[]>
+        >((acc, [key, messages]) => {
+          acc[key] = messages.map((message) => ({ message }));
+          return acc;
+        }, {}),
+      },
+    };
+    return { success: false, errorMap };
   }
   const requestContext = context.get(RequestContext);
   invariant(requestContext, "Missing request context.");
@@ -395,13 +360,25 @@ function BanDialog({
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
 }) {
-  const fetcher = ReactRouter.useFetcher<Route.ComponentProps["actionData"]>();
+  const fetcher = ReactRouter.useFetcher<typeof action>();
+  const form = TanFormRemix.useForm({
+    defaultValues: {
+      intent: "ban" as const,
+      userId: userId ?? "",
+      banReason: "",
+    },
+    onSubmit: async ({ value }) => {
+      await fetcher.submit(value, { method: "POST" });
+    },
+  });
   React.useEffect(() => {
     if (fetcher.data?.success) {
       onOpenChange(false);
     }
-  }, [fetcher.data?.success, onOpenChange]);
-
+    if (fetcher.data?.errorMap) {
+      form.setErrorMap(fetcher.data.errorMap);
+    }
+  }, [fetcher.data, onOpenChange, form]);
   if (!userId) return null; // After hooks per Rules of Hooks.
   return (
     <Dialog key={userId} open={isOpen} onOpenChange={onOpenChange}>
@@ -412,27 +389,57 @@ function BanDialog({
             Provide a reason for banning this user.
           </DialogDescription>
         </DialogHeader>
-        <form method="post" onSubmit={onSubmitReactRouter(fetcher.submit)}>
-          <AlertForm
-            success={fetcher.data?.success}
-            message={fetcher.data?.message}
-            details={fetcher.data?.details}
-          />
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="banReason" className="text-right">
-                Reason
-              </Label>
-              <Input
-                id="banReason"
-                name="banReason"
-                defaultValue=""
-                autoFocus
-                className="col-span-3"
-              />
-            </div>
-          </div>
-          <input type="hidden" name="userId" value={userId} />
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            void form.handleSubmit();
+          }}
+        >
+          <FieldGroup>
+            <form.Field name="intent">
+              {(field) => (
+                <input
+                  name={field.name}
+                  type="hidden"
+                  value={field.state.value}
+                />
+              )}
+            </form.Field>
+            <form.Field name="userId">
+              {(field) => (
+                <input
+                  name={field.name}
+                  type="hidden"
+                  value={field.state.value}
+                />
+              )}
+            </form.Field>
+            <form.Field name="banReason">
+              {(field) => {
+                const isInvalid =
+                  field.state.meta.isTouched && !field.state.meta.isValid;
+                return (
+                  <Field data-invalid={isInvalid}>
+                    <FieldLabel htmlFor={field.name}>Reason</FieldLabel>
+                    <Input
+                      id={field.name}
+                      name={field.name}
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => {
+                        field.handleChange(e.target.value);
+                      }}
+                      autoFocus
+                      aria-invalid={isInvalid}
+                    />
+                    {isInvalid && (
+                      <FieldError errors={field.state.meta.errors} />
+                    )}
+                  </Field>
+                );
+              }}
+            </form.Field>
+          </FieldGroup>
           <DialogFooter>
             <Button
               type="button"
@@ -443,14 +450,18 @@ function BanDialog({
             >
               Cancel
             </Button>
-            <Button
-              type="submit"
-              name="intent"
-              value="ban"
-              disabled={fetcher.state !== "idle"}
+            <form.Subscribe
+              selector={(formState) => [
+                formState.canSubmit,
+                formState.isSubmitting,
+              ]}
             >
-              Ban
-            </Button>
+              {([canSubmit, isSubmitting]) => (
+                <Button type="submit" disabled={!canSubmit}>
+                  {isSubmitting ? "..." : "Ban"}
+                </Button>
+              )}
+            </form.Subscribe>
           </DialogFooter>
         </form>
       </DialogContent>

@@ -1,6 +1,14 @@
 import type { Route } from "./+types/admin.users";
 import * as React from "react";
 import * as Oui from "@/components/ui/oui-index";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import { onSubmitReactRouter } from "@/lib/oui-on-submit-react-router";
 import { RequestContext } from "@/lib/request-context";
 import { invariant } from "@epic-web/invariant";
@@ -9,7 +17,7 @@ import * as ReactRouter from "react-router";
 import * as z from "zod";
 
 export async function loader({ request, context }: Route.LoaderArgs) {
-  const LIMIT = 20;
+  const LIMIT = 10;
   const url = new URL(request.url);
   const params = Object.fromEntries(url.searchParams);
   const schema = z.object({
@@ -234,49 +242,51 @@ export default function RouteComponent({ loaderData }: Route.ComponentProps) {
       </Oui.Table>
 
       {loaderData.pageCount > 1 && (
-        <Oui.Pagination selectedKeys={[loaderData.page]}>
-          <Oui.PaginationItem
-            id="prev"
-            href={`/admin/users?page=${String(
-              loaderData.page > 1 ? loaderData.page - 1 : 1,
-            )}${
-              loaderData.filter
-                ? `&filter=${encodeURIComponent(loaderData.filter)}`
-                : ""
-            }`}
-            isDisabled={loaderData.page <= 1}
-          >
-            Previous
-          </Oui.PaginationItem>
-          {Array.from({ length: loaderData.pageCount }, (_, i) => (
-            <Oui.PaginationItem
-              key={i + 1}
-              id={String(i + 1)}
-              href={`/admin/users?page=${String(i + 1)}${
-                loaderData.filter
-                  ? `&filter=${encodeURIComponent(loaderData.filter)}`
-                  : ""
-              }`}
-            >
-              {i + 1}
-            </Oui.PaginationItem>
-          ))}
-          <Oui.PaginationItem
-            id="next"
-            href={`/admin/users?page=${String(
-              loaderData.page < loaderData.pageCount
-                ? loaderData.page + 1
-                : loaderData.pageCount,
-            )}${
-              loaderData.filter
-                ? `&filter=${encodeURIComponent(loaderData.filter)}`
-                : ""
-            }`}
-            isDisabled={loaderData.page >= loaderData.pageCount}
-          >
-            Next
-          </Oui.PaginationItem>
-        </Oui.Pagination>
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                href={`/admin/users?page=${String(
+                  loaderData.page > 1 ? loaderData.page - 1 : 1,
+                )}${
+                  loaderData.filter
+                    ? `&filter=${encodeURIComponent(loaderData.filter)}`
+                    : ""
+                }`}
+              />
+            </PaginationItem>
+            {Array.from({ length: loaderData.pageCount }, (_, i) => {
+              const page = i + 1;
+              return (
+                <PaginationItem key={page}>
+                  <PaginationLink
+                    href={`/admin/users?page=${String(page)}${
+                      loaderData.filter
+                        ? `&filter=${encodeURIComponent(loaderData.filter)}`
+                        : ""
+                    }`}
+                    isActive={page === loaderData.page}
+                  >
+                    {page}
+                  </PaginationLink>
+                </PaginationItem>
+              );
+            })}
+            <PaginationItem>
+              <PaginationNext
+                href={`/admin/users?page=${String(
+                  loaderData.page < loaderData.pageCount
+                    ? loaderData.page + 1
+                    : loaderData.pageCount,
+                )}${
+                  loaderData.filter
+                    ? `&filter=${encodeURIComponent(loaderData.filter)}`
+                    : ""
+                }`}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
       )}
 
       <BanDialog

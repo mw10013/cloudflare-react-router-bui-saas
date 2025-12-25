@@ -31,6 +31,7 @@
     "d1:reset:int": "node scripts/d1-reset.ts --env int",
     "d1:reset:PRODUCTION": "node scripts/d1-reset.ts --env production",
     "stripe:listen": "stripe listen --project-name=crrbuis-int --load-from-webhooks-api --forward-to localhost:5173/",
+    "stripe:listen1": "stripe listen --project-name=crrs-int --load-from-webhooks-api --forward-to localhost:5173/",
     "script": "node --env-file=.env",
     "refs:shadcn": "rm -rf refs/shadcn && mkdir -p refs/shadcn && curl -L https://github.com/shadcn-ui/ui/archive/refs/tags/shadcn@3.6.2.tar.gz | tar -xz -C refs/shadcn --strip-components=1",
     "refs:tan-form": "rm -rf refs/tan-form && mkdir -p refs/tan-form && curl -L https://github.com/TanStack/form/archive/refs/tags/@tanstack/react-form@1.27.6.tar.gz | tar -xz -C refs/tan-form --strip-components=1",

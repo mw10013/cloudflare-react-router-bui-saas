@@ -114,7 +114,7 @@ export default function RouteComponent({ actionData }: Route.ComponentProps) {
                   id={field.name}
                   name={field.name}
                   value={field.state.value}
-                  // onBlur={field.handleBlur}
+                  onBlur={field.handleBlur}
                   onChange={(e) => {
                     field.handleChange(e.target.value);
                   }}

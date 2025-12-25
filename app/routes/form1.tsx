@@ -109,6 +109,7 @@ export default function RouteComponent() {
                         name={field.name}
                         type="number"
                         value={field.state.value}
+                        onBlur={field.handleBlur}
                         onChange={(e) => {
                           field.handleChange(e.target.valueAsNumber);
                         }}

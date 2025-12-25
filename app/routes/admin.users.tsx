@@ -1,5 +1,10 @@
 import type { Route } from "./+types/admin.users";
 import * as React from "react";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 import * as Oui from "@/components/ui/oui-index";
 import {
   Pagination,
@@ -12,6 +17,7 @@ import {
 import { onSubmitReactRouter } from "@/lib/oui-on-submit-react-router";
 import { RequestContext } from "@/lib/request-context";
 import { invariant } from "@epic-web/invariant";
+import { Search } from "lucide-react";
 import * as Rac from "react-aria-components";
 import * as ReactRouter from "react-router";
 import * as z from "zod";
@@ -142,16 +148,27 @@ export default function RouteComponent({ loaderData }: Route.ComponentProps) {
       </header>
 
       <div>
-        <Oui.SearchField
-          aria-label="Filter by email"
-          defaultValue={loaderData.filter ?? ""}
-          name="filter"
-          onSubmit={(filter: string) =>
-            void navigate(`./?filter=${encodeURIComponent(filter)}&page=1`)
-          }
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            const formData = new FormData(e.currentTarget);
+            const filter = formData.get("filter");
+            if (typeof filter === "string")
+              void navigate(`./?filter=${encodeURIComponent(filter)}&page=1`);
+          }}
         >
-          <Oui.Input placeholder="Filter by email..." />
-        </Oui.SearchField>
+          <InputGroup>
+            <InputGroupInput
+              name="filter"
+              defaultValue={loaderData.filter ?? ""}
+              placeholder="Filter by email..."
+              aria-label="Filter by email"
+            />
+            <InputGroupAddon>
+              <Search className="size-4" />
+            </InputGroupAddon>
+          </InputGroup>
+        </form>
       </div>
 
       <Oui.Table aria-label="Users">

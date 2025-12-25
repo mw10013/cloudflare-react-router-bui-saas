@@ -1,10 +1,22 @@
 import type { Route } from "./+types/admin.users";
 import * as React from "react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group";
+import { Label } from "@/components/ui/label";
 import * as Oui from "@/components/ui/oui-index";
 import {
   Pagination,
@@ -21,6 +33,52 @@ import { Search } from "lucide-react";
 import * as Rac from "react-aria-components";
 import * as ReactRouter from "react-router";
 import * as z from "zod";
+
+interface AlertFormActionResult {
+  success: boolean;
+  message?: string;
+  details?: string | string[];
+  validationErrors?: Rac.FormProps["validationErrors"];
+}
+
+/**
+ * A shadcn Alert for a form displaying form action result.
+ * @param props - Component props including success, message, details.
+ */
+function AlertForm({
+  success,
+  message,
+  details,
+  className,
+  ...props
+}: React.ComponentProps<typeof Alert> &
+  Partial<Pick<AlertFormActionResult, "success" | "message" | "details">>) {
+  const detailsArray = Array.isArray(details)
+    ? details
+    : details
+      ? [details]
+      : [];
+  if (success === undefined) return null;
+  if (!message && detailsArray.length === 0) return null;
+
+  return (
+    <Alert
+      data-slot="alert-form"
+      variant={success ? "default" : "destructive"}
+      className={className}
+      {...props}
+    >
+      {message && <AlertTitle>{message}</AlertTitle>}
+      {detailsArray.length > 0 && (
+        <AlertDescription>
+          {detailsArray.map((detail, i) => (
+            <div key={i}>{detail}</div>
+          ))}
+        </AlertDescription>
+      )}
+    </Alert>
+  );
+}
 
 export async function loader({ request, context }: Route.LoaderArgs) {
   const LIMIT = 10;
@@ -66,7 +124,7 @@ export async function loader({ request, context }: Route.LoaderArgs) {
 export async function action({
   request,
   context,
-}: Route.ActionArgs): Promise<Oui.AlertFormActionResult> {
+}: Route.ActionArgs): Promise<AlertFormActionResult> {
   const schema = z.discriminatedUnion("intent", [
     z.object({
       intent: z.literal("ban"),
@@ -346,47 +404,56 @@ function BanDialog({
 
   if (!userId) return null; // After hooks per Rules of Hooks.
   return (
-    <Oui.ModalOverlay isOpen={isOpen} onOpenChange={onOpenChange}>
-      <Oui.Modal>
-        <Oui.Dialog>
-          <Oui.DialogHeader>
-            <Oui.DialogTitle>Ban User</Oui.DialogTitle>
-          </Oui.DialogHeader>
-          <Rac.Form
-            validationBehavior="aria"
-            validationErrors={fetcher.data?.validationErrors}
-            onSubmit={onSubmitReactRouter(fetcher.submit)}
-          >
-            <Oui.FieldGroup>
-              <Oui.AlertForm
-                success={fetcher.data?.success}
-                message={fetcher.data?.message}
-                details={fetcher.data?.details}
+    <Dialog key={userId} open={isOpen} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Ban User</DialogTitle>
+          <DialogDescription>
+            Provide a reason for banning this user.
+          </DialogDescription>
+        </DialogHeader>
+        <form method="post" onSubmit={onSubmitReactRouter(fetcher.submit)}>
+          <AlertForm
+            success={fetcher.data?.success}
+            message={fetcher.data?.message}
+            details={fetcher.data?.details}
+          />
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="banReason" className="text-right">
+                Reason
+              </Label>
+              <Input
+                id="banReason"
+                name="banReason"
+                defaultValue=""
+                autoFocus
+                className="col-span-3"
               />
-              <Oui.TextField name="banReason" defaultValue="" autoFocus>
-                <Oui.FieldLabel>Reason</Oui.FieldLabel>
-                <Oui.Input />
-                <Oui.FieldError />
-              </Oui.TextField>
-              <input type="hidden" name="userId" value={userId} />
-              <Oui.Field orientation="horizontal" className="justify-end">
-                <Oui.Button variant="outline" slot="close">
-                  Cancel
-                </Oui.Button>
-                {/* Do not set slot='close' — we keep the dialog open until the server confirms success. */}
-                <Oui.Button
-                  type="submit"
-                  name="intent"
-                  value="ban"
-                  isDisabled={fetcher.state !== "idle"}
-                >
-                  Ban
-                </Oui.Button>
-              </Oui.Field>
-            </Oui.FieldGroup>
-          </Rac.Form>
-        </Oui.Dialog>
-      </Oui.Modal>
-    </Oui.ModalOverlay>
+            </div>
+          </div>
+          <input type="hidden" name="userId" value={userId} />
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                onOpenChange(false);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              name="intent"
+              value="ban"
+              disabled={fetcher.state !== "idle"}
+            >
+              Ban
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }

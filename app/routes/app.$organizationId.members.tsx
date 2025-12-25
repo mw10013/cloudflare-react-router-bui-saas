@@ -1,4 +1,5 @@
 import type { Route } from "./+types/app.$organizationId.members";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -13,10 +14,15 @@ import {
   ItemDescription,
   ItemTitle,
 } from "@/components/ui/item";
-import * as Oui from "@/components/ui/oui-index";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { RequestContext } from "@/lib/request-context";
 import { invariant } from "@epic-web/invariant";
-import * as Rac from "react-aria-components";
 import { redirect, useFetcher } from "react-router";
 import * as z from "zod";
 
@@ -133,7 +139,7 @@ export default function RouteComponent({
         </CardHeader>
         <CardContent>
           {members.length > 0 ? (
-            <Rac.GridList aria-label="Organization members">
+            <div aria-label="Organization members" data-testid="members-list">
               {members.map((member) => (
                 <MemberItem
                   key={member.id}
@@ -142,7 +148,7 @@ export default function RouteComponent({
                   canLeaveMemberId={canLeaveMemberId}
                 />
               ))}
-            </Rac.GridList>
+            </div>
           ) : (
             <p className="text-muted-foreground text-sm">
               No members have been added to this organization yet.
@@ -166,79 +172,70 @@ function MemberItem({
   const fetcher = useFetcher();
   const pending = fetcher.state !== "idle";
   return (
-    <Oui.CardGridListItem textValue={member.user.email}>
-      <Item size="sm" className="gap-4 px-0">
-        <ItemContent>
-          <ItemTitle>{member.user.email}</ItemTitle>
-          <ItemDescription>
-            {member.role !== "owner" && canEdit ? (
-              <Oui.Select
+    <Item size="sm" className="gap-4 px-0">
+      <ItemContent>
+        <ItemTitle>{member.user.email}</ItemTitle>
+        <ItemDescription className="mt-0.5">
+          {member.role !== "owner" && canEdit ? (
+            <Select
+              value={member.role}
+              onValueChange={(value) =>
+                void fetcher.submit(
+                  { intent: "change-role", memberId: member.id, role: value },
+                  { method: "post" },
+                )
+              }
+            >
+              <SelectTrigger
                 aria-label={`Change role for ${member.user.email}`}
-                value={member.role}
-                onChange={(key) =>
-                  void fetcher.submit(
-                    { intent: "change-role", memberId: member.id, role: key },
-                    { method: "post" },
-                  )
-                }
               >
-                <Oui.SelectButton>
-                  <Oui.SelectValue />
-                </Oui.SelectButton>
-                <Oui.Popover>
-                  <Rac.ListBox
-                    items={
-                      [
-                        { id: "member", name: "Member" },
-                        { id: "admin", name: "Admin" },
-                      ] as const
-                    }
-                  >
-                    {(item) => <Oui.ListBoxItem>{item.name}</Oui.ListBoxItem>}
-                  </Rac.ListBox>
-                </Oui.Popover>
-              </Oui.Select>
-            ) : (
-              member.role
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="member">Member</SelectItem>
+                <SelectItem value="admin">Admin</SelectItem>
+              </SelectContent>
+            </Select>
+          ) : (
+            member.role
+          )}
+        </ItemDescription>
+      </ItemContent>
+      {member.role !== "owner" && (
+        <ItemActions>
+          <div className="flex gap-2">
+            {canEdit && (
+              <fetcher.Form method="post">
+                <input type="hidden" name="memberId" value={member.id} />
+                <Button
+                  type="submit"
+                  name="intent"
+                  value="remove"
+                  variant="outline"
+                  size="sm"
+                  disabled={pending}
+                >
+                  Remove
+                </Button>
+              </fetcher.Form>
             )}
-          </ItemDescription>
-        </ItemContent>
-        {member.role !== "owner" && (
-          <ItemActions>
-            <div className="flex gap-2">
-              {canEdit && (
-                <fetcher.Form method="post">
-                  <input type="hidden" name="memberId" value={member.id} />
-                  <Oui.Button
-                    type="submit"
-                    name="intent"
-                    value="remove"
-                    variant="outline"
-                    size="sm"
-                    isDisabled={pending}
-                  >
-                    Remove
-                  </Oui.Button>
-                </fetcher.Form>
-              )}
-              {member.id === canLeaveMemberId && (
-                <fetcher.Form method="post">
-                  <Oui.Button
-                    type="submit"
-                    name="intent"
-                    value="leave"
-                    variant="outline"
-                    size="sm"
-                    isDisabled={pending}
-                  >
-                    Leave
-                  </Oui.Button>
-                </fetcher.Form>
-              )}
-            </div>
-          </ItemActions>
-        )}
-      </Item>
-    </Oui.CardGridListItem>
+            {member.id === canLeaveMemberId && (
+              <fetcher.Form method="post">
+                <Button
+                  type="submit"
+                  name="intent"
+                  value="leave"
+                  variant="outline"
+                  size="sm"
+                  disabled={pending}
+                >
+                  Leave
+                </Button>
+              </fetcher.Form>
+            )}
+          </div>
+        </ItemActions>
+      )}
+    </Item>
   );
 }

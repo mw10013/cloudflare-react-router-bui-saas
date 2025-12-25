@@ -390,6 +390,7 @@ function BanDialog({
           </DialogDescription>
         </DialogHeader>
         <form
+          id="ban-form"
           onSubmit={(e) => {
             e.preventDefault();
             void form.handleSubmit();
@@ -440,30 +441,30 @@ function BanDialog({
               }}
             </form.Field>
           </FieldGroup>
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => {
-                onOpenChange(false);
-              }}
-            >
-              Cancel
-            </Button>
-            <form.Subscribe
-              selector={(formState) => [
-                formState.canSubmit,
-                formState.isSubmitting,
-              ]}
-            >
-              {([canSubmit, isSubmitting]) => (
-                <Button type="submit" disabled={!canSubmit}>
-                  {isSubmitting ? "..." : "Ban"}
-                </Button>
-              )}
-            </form.Subscribe>
-          </DialogFooter>
         </form>
+        <DialogFooter>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => {
+              onOpenChange(false);
+            }}
+          >
+            Cancel
+          </Button>
+          <form.Subscribe
+            selector={(formState) => [
+              formState.canSubmit,
+              formState.isSubmitting,
+            ]}
+          >
+            {([canSubmit, isSubmitting]) => (
+              <Button type="submit" form="ban-form" disabled={!canSubmit}>
+                {isSubmitting ? "..." : "Ban"}
+              </Button>
+            )}
+          </form.Subscribe>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

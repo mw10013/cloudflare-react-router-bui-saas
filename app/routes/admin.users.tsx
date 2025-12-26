@@ -10,6 +10,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   Field,
   FieldError,
   FieldGroup,
@@ -21,7 +27,6 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group";
-import * as Oui from "@/components/ui/oui-index";
 import {
   Pagination,
   PaginationContent,
@@ -30,11 +35,18 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { RequestContext } from "@/lib/request-context";
 import { invariant } from "@epic-web/invariant";
 import * as TanFormRemix from "@tanstack/react-form-remix";
 import { Search } from "lucide-react";
-import * as Rac from "react-aria-components";
 import * as ReactRouter from "react-router";
 import * as z from "zod";
 
@@ -194,92 +206,84 @@ export default function RouteComponent({ loaderData }: Route.ComponentProps) {
         </form>
       </div>
 
-      <Oui.Table aria-label="Users">
-        <Oui.TableHeader>
-          <Oui.Column isRowHeader className="w-8">
-            Id
-          </Oui.Column>
-          <Oui.Column>Email</Oui.Column>
-          <Oui.Column>Role</Oui.Column>
-          <Oui.Column>Verified</Oui.Column>
-          <Oui.Column>Banned</Oui.Column>
-          <Oui.Column>Ban Reason</Oui.Column>
-          <Oui.Column>Created</Oui.Column>
-          <Oui.Column className="w-10 text-right" aria-label="Actions">
-            <span className="sr-only">Actions</span>
-          </Oui.Column>
-        </Oui.TableHeader>
-        <Oui.TableBody items={loaderData.users}>
-          {(user) => (
-            <Oui.Row id={user.id}>
-              <Oui.Cell>{user.id}</Oui.Cell>
-              <Oui.Cell>{user.email}</Oui.Cell>
-              <Oui.Cell>{user.role}</Oui.Cell>
-              <Oui.Cell>{String(user.emailVerified)}</Oui.Cell>
-              <Oui.Cell>{String(user.banned)}</Oui.Cell>
-              <Oui.Cell>{user.banReason ?? ""}</Oui.Cell>
-              <Oui.Cell>{user.createdAt.toLocaleString()}</Oui.Cell>
-              <Oui.Cell className="text-right">
-                <Rac.MenuTrigger>
-                  <Oui.Button
-                    variant="ghost"
-                    className="size-8 p-0"
-                    aria-label={`Open menu for ${user.email}`}
-                  >
-                    ⋮
-                  </Oui.Button>
-                  <Oui.Popover>
-                    <Oui.Menu>
-                      {user.banned ? (
-                        <Oui.MenuItem
-                          key="unban"
-                          id="unban"
-                          onAction={() => {
-                            void fetcher.submit(
-                              {
-                                intent: "unban",
-                                userId: user.id,
-                              },
-                              { method: "post" },
-                            );
-                          }}
-                        >
-                          Unban
-                        </Oui.MenuItem>
-                      ) : (
-                        <Oui.MenuItem
-                          key="ban"
-                          id="ban"
-                          onAction={() => {
-                            setBanDialog({ isOpen: true, userId: user.id });
-                          }}
-                        >
-                          Ban
-                        </Oui.MenuItem>
-                      )}
-                      <Oui.MenuItem
-                        key="impersonate"
-                        id="impersonate"
-                        onAction={() => {
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-8">Id</TableHead>
+            <TableHead>Email</TableHead>
+            <TableHead>Role</TableHead>
+            <TableHead>Verified</TableHead>
+            <TableHead>Banned</TableHead>
+            <TableHead>Ban Reason</TableHead>
+            <TableHead>Created</TableHead>
+            <TableHead className="w-10 text-right">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {loaderData.users.map((user) => (
+            <TableRow key={user.id}>
+              <TableCell>{user.id}</TableCell>
+              <TableCell>{user.email}</TableCell>
+              <TableCell>{user.role}</TableCell>
+              <TableCell>{String(user.emailVerified)}</TableCell>
+              <TableCell>{String(user.banned)}</TableCell>
+              <TableCell>{user.banReason ?? ""}</TableCell>
+              <TableCell>{user.createdAt.toLocaleString()}</TableCell>
+              <TableCell className="text-right">
+                <DropdownMenu>
+                  <DropdownMenuTrigger>
+                    <Button
+                      variant="ghost"
+                      className="size-8 p-0"
+                      aria-label={`Open menu for ${user.email}`}
+                    >
+                      ⋮
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    {user.banned ? (
+                      <DropdownMenuItem
+                        onClick={() => {
                           void fetcher.submit(
                             {
-                              intent: "impersonate",
+                              intent: "unban",
                               userId: user.id,
                             },
                             { method: "post" },
                           );
                         }}
                       >
-                        Impersonate
-                      </Oui.MenuItem>
-                    </Oui.Menu>
-                  </Oui.Popover>
-                </Rac.MenuTrigger>
-              </Oui.Cell>
-            </Oui.Row>
-          )}
-        </Oui.TableBody>
-      </Oui.Table>
+                        Unban
+                      </DropdownMenuItem>
+                    ) : (
+                      <DropdownMenuItem
+                        onClick={() => {
+                          setBanDialog({ isOpen: true, userId: user.id });
+                        }}
+                      >
+                        Ban
+                      </DropdownMenuItem>
+                    )}
+                    <DropdownMenuItem
+                      onClick={() => {
+                        void fetcher.submit(
+                          {
+                            intent: "impersonate",
+                            userId: user.id,
+                          },
+                          { method: "post" },
+                        );
+                      }}
+                    >
+                      Impersonate
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
 
       {loaderData.pageCount > 1 && (
         <Pagination>

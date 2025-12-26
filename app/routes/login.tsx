@@ -1,4 +1,6 @@
 import type { Route } from "./+types/login";
+import * as React from "react";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -6,13 +8,18 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import * as Oui from "@/components/ui/oui-index";
-import { onSubmitReactRouter } from "@/lib/oui-on-submit-react-router";
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
 import { RequestContext } from "@/lib/request-context";
 import { invariant } from "@epic-web/invariant";
-import * as Rac from "react-aria-components";
-import { useSubmit } from "react-router";
-import * as z from "zod";
+import * as TanFormRemix from "@tanstack/react-form-remix";
+import * as ReactRouter from "react-router";
+import z from "zod";
 
 export function loader({ context }: Route.LoaderArgs) {
   const requestContext = context.get(RequestContext);
@@ -22,12 +29,7 @@ export function loader({ context }: Route.LoaderArgs) {
   return { isDemoMode: env.DEMO_MODE === "true" };
 }
 
-export async function action({
-  request,
-  context,
-}: Route.ActionArgs): Promise<
-  Oui.AlertFormActionResult & { magicLink?: string }
-> {
+export async function action({ request, context }: Route.ActionArgs) {
   const schema = z.object({
     email: z.email(),
   });
@@ -35,13 +37,19 @@ export async function action({
     Object.fromEntries(await request.formData()),
   );
   if (!parseResult.success) {
-    const { formErrors: details, fieldErrors: validationErrors } =
-      z.flattenError(parseResult.error);
-    return {
-      success: false,
-      details,
-      validationErrors,
-    } satisfies Oui.AlertFormActionResult;
+    const { formErrors, fieldErrors } = z.flattenError(parseResult.error);
+    const errorMap = {
+      onSubmit: {
+        ...(formErrors.length > 0 ? { form: formErrors.join(", ") } : {}),
+        fields: Object.entries(fieldErrors).reduce<
+          Record<string, { message: string }[]>
+        >((acc, [key, messages]) => {
+          acc[key] = messages.map((message) => ({ message }));
+          return acc;
+        }, {}),
+      },
+    };
+    return { success: false, errorMap };
   }
   const requestContext = context.get(RequestContext);
   invariant(requestContext, "Missing request context.");
@@ -67,7 +75,22 @@ export default function RouteComponent({
   loaderData: { isDemoMode },
   actionData,
 }: Route.ComponentProps) {
-  const submit = useSubmit();
+  const submit = ReactRouter.useSubmit();
+  const form = TanFormRemix.useForm({
+    ...TanFormRemix.formOptions({
+      defaultValues: { email: "" },
+    }),
+    onSubmit: async ({ value }) => {
+      console.log(`onSubmit: value: ${JSON.stringify(value)}`);
+      await submit(value, { method: "POST" });
+    },
+  });
+
+  React.useEffect(() => {
+    if (actionData?.errorMap) {
+      form.setErrorMap(actionData.errorMap);
+    }
+  }, [actionData, form]);
   if (actionData?.success) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center">
@@ -103,27 +126,61 @@ export default function RouteComponent({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Rac.Form
+          <ReactRouter.Form
+            id="login-form"
             method="post"
-            validationBehavior="aria"
-            validationErrors={actionData?.validationErrors}
-            onSubmit={onSubmitReactRouter(submit)}
+            onSubmit={(e) => {
+              e.preventDefault();
+              void form.handleSubmit();
+            }}
           >
-            <Oui.FieldGroup>
-              <Oui.AlertForm
-                success={actionData?.success}
-                message={actionData?.message}
-                details={actionData?.details}
+            <FieldGroup>
+              <form.Field
+                name="email"
+                children={(field) => {
+                  const isInvalid =
+                    field.state.meta.isTouched && !field.state.meta.isValid;
+                  return (
+                    <Field data-invalid={isInvalid || undefined}>
+                      <FieldLabel htmlFor={field.name}>Email</FieldLabel>
+                      <Input
+                        id={field.name}
+                        name={field.name}
+                        type="email"
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => {
+                          field.handleChange(e.target.value);
+                        }}
+                        placeholder="m@example.com"
+                        aria-invalid={isInvalid}
+                      />
+                      {isInvalid && (
+                        <FieldError errors={field.state.meta.errors} />
+                      )}
+                    </Field>
+                  );
+                }}
               />
-              <Oui.TextField name="email" type="email" isRequired>
-                <Oui.FieldLabel>Email</Oui.FieldLabel>
-                <Oui.Input placeholder="m@example.com" />
-              </Oui.TextField>
-              <Oui.Button type="submit" className="w-full">
-                Send magic link
-              </Oui.Button>
-            </Oui.FieldGroup>
-          </Rac.Form>
+              <form.Subscribe
+                selector={(formState) => [
+                  formState.canSubmit,
+                  formState.isSubmitting,
+                ]}
+              >
+                {([canSubmit, isSubmitting]) => (
+                  <Button
+                    type="submit"
+                    form="login-form"
+                    disabled={!canSubmit}
+                    className="w-full"
+                  >
+                    {isSubmitting ? "..." : "Send magic link"}
+                  </Button>
+                )}
+              </form.Subscribe>
+            </FieldGroup>
+          </ReactRouter.Form>
         </CardContent>
       </Card>
     </div>

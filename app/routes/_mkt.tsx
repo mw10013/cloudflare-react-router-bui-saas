@@ -1,6 +1,6 @@
 import type { Route } from "./+types/_mkt";
 import { AppLogoIcon } from "@/components/app-logo-icon";
-import * as OuiReactRouter from "@/components/oui-react-router-index";
+import ThemeToggleButton from "@/components/theme-toggle-button";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { RequestContext } from "@/lib/request-context";
@@ -67,7 +67,7 @@ function Header() {
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-2">
             <GitHubRepoLink />
-            <OuiReactRouter.ReactRouterThemeToggleButton />
+            <ThemeToggleButton />
             <Separator orientation="vertical" className="mx-1 h-6 min-h-6" />
             {routeLoaderData?.sessionUser ? (
               <Button

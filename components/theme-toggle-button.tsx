@@ -1,6 +1,6 @@
 "use client";
 
-import { ToggleButton } from "@/components/ui/oui-toggle-button";
+import { Toggle } from "@/components/ui/toggle";
 import { Moon, Sun } from "lucide-react";
 import { Theme, useTheme } from "remix-themes";
 
@@ -26,15 +26,14 @@ export function ReactRouterThemeToggleButton() {
   };
 
   return (
-    <ToggleButton
-      isSelected={metadata.definedBy === "SYSTEM"}
-      onChange={smartToggle}
+    <Toggle
+      pressed={metadata.definedBy === "SYSTEM"}
+      onPressedChange={smartToggle}
       aria-label="Toggle dark mode"
-      variant="ghost"
     >
       <Sun className="dark:hidden" />
       <Moon className="hidden dark:block" />
-    </ToggleButton>
+    </Toggle>
   );
 }
 

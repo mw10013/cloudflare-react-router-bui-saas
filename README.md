@@ -132,16 +132,6 @@ pnpm dlx shadcn@latest add --overwrite all
 pnpm dlx shadcn@latest add --overwrite accordion alert-dialog alert aspect-ratio avatar badge breadcrumb button-group button calendar card carousel chart checkbox collapsible combobox command context-menu dialog drawer dropdown-menu empty field input-group input item label pagination popover radio-group select separator sidebar sonner spinner switch table textarea toggle tooltip
 ```
 
-## Oui
-
-- React aria components with shadcn characteristics.
-- https://oui.mw10013.workers.dev/
-
-```
-pnpm dlx shadcn@latest add --overwrite @oui/oui-index
-pnpm dlx shadcn@latest add --overwrite @oui/oui-react-router-index
-```
-
 ## Credit
 
 Homepage / Pricing design by [dev-xo](https://github.com/dev-xo). See his [remix-saas](https://github.com/dev-xo/remix-saas) for a production-ready saas template for remix.

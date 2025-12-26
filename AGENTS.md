@@ -8,12 +8,7 @@
 
 - `crrbuis` (cloudflare-react-router-bui-saas) is a saas project template.
 - `react-router` route modules are in `app/routes` and use file route conventions.
-- Oui UI components are in `components/ui` and `components` and their filenames are prefixed with `oui-`. However, we are migrating from Oui to Shadcn with Base UI.
-- Shadcn UI components are in `components/ui` and their filenames are not prefixed with `oui-`.
-- `refs/oui` contains a read-only local reference copy of the Oui UI component library, downloaded via `pnpm refs:oui`. It is ignored by Git and used for LLM scanning/reference only.
-  - For guidance on using Oui and RAC compponents and its compositional patterns, scan files in `refs/oui/registry/default/components` that have filenames prefixed with `oui-` and have `demo`. Eg: `refs/oui/registry/default/components/oui-form-demo.tsx`.
-  - For guidance on translating shadcn compositional patterns to Oui and RAC patterns, scan files in `refs/oui/app/routes` that have filenames prefixed with `side-by-side.`. Eg: `refs/oui/app/routes/side-by-side.field.tsx`.
-  - **Refs**: Downloaded source code of libraries are in `refs/` for reference.
+- **Refs**: Downloaded source code of libraries are in `refs/` for reference.
 
 ### Reference Docs Locations
 
@@ -36,8 +31,6 @@
 ```ts
 import type { Stripe as StripeTypes } from "stripe";
 import * as React from "react";
-import * as OuiReactRouter from "@/components/oui-react-router-index";
-import * as Oui from "@/components/ui/oui-index";
 import * as Domain from "@/lib/domain";
 import * as Hono from "hono";
 import * as Rac from "react-aria-components";
@@ -45,16 +38,6 @@ import * as ReactRouter from "react-router";
 import * as Stripe from "stripe";
 import * as z from "zod";
 ```
-
-## UI Guidelines
-
-- **Preference order for UI components:**
-  1. Oui UI components (oui-\* prefixed files in `@/components` and `@/components/ui`) - these are ui components and react-aria-components reusable wrappers with shadcn styling
-  2. Shadcn UI components from `@/components/ui` - use for gaps in oui coverage
-  3. React Aria Components (`Rac.*`) directly - when no styling is needed
-- Custom or app-specific components generally live in `@/components` or route modules
-- Leverage the design token system: CSS variables defined in `app/app.css` are mapped to Tailwind utilities via `@theme inline` (use semantic color classes like `bg-background`, `text-foreground`, `border-border` instead of hardcoded colors)
-- Follow the shadcn color convention: each color has a base and `-foreground` variant (e.g., `bg-primary text-primary-foreground`)
 
 ## SQL Guidelines
 

@@ -2,7 +2,7 @@ import type { Route } from "./+types/_mkt";
 import { AppLogoIcon } from "@/components/app-logo-icon";
 import * as OuiReactRouter from "@/components/oui-react-router-index";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/oui-index";
+import { Separator } from "@/components/ui/separator";
 import { RequestContext } from "@/lib/request-context";
 import * as ReactRouter from "react-router";
 import { siGithub } from "simple-icons";

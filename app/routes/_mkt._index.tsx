@@ -60,7 +60,7 @@ export default function RouteComponent() {
             variant="outline"
             render={
               <a
-                href="https://github.com/mw10013/cloudflare-react-router-saas"
+                href="https://github.com/mw10013/cloudflare-react-router-bui-saas"
                 target="_blank"
                 rel="noopener noreferrer"
               />
@@ -407,7 +407,7 @@ export default function RouteComponent() {
               variant="outline"
               render={
                 <a
-                  href="https://github.com/mw10013/cloudflare-react-router-saas"
+                  href="https://github.com/mw10013/cloudflare-react-router-bui-saas"
                   target="_blank"
                   rel="noopener noreferrer"
                 />
@@ -416,7 +416,7 @@ export default function RouteComponent() {
             >
               <svg viewBox="0 0 24 24" fill="currentColor" className="size-5">
                 <path d={siGithub.path} />
-            </svg>
+              </svg>
               Star on Github
             </Button>
           </div>

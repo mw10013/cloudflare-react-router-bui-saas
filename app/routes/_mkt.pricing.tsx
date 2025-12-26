@@ -309,7 +309,7 @@ export default function RouteComponent({
               variant="outline"
               render={
                 <a
-                  href="https://github.com/mw10013/cloudflare-react-router-saas"
+                  href="https://github.com/mw10013/cloudflare-react-router-bui-saas"
                   target="_blank"
                   rel="noopener noreferrer"
                 />

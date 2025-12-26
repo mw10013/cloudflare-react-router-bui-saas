@@ -128,7 +128,6 @@ pnpm test:e2e
 ## Shandcn with Base UI
 
 ```
-pnpm dlx shadcn@latest add --overwrite all
 pnpm dlx shadcn@latest add --overwrite accordion alert-dialog alert aspect-ratio avatar badge breadcrumb button-group button calendar card carousel chart checkbox collapsible combobox command context-menu dialog drawer dropdown-menu empty field input-group input item label pagination popover radio-group select separator sidebar sonner spinner switch table textarea toggle tooltip
 ```
 
@@ -138,4 +137,4 @@ Homepage / Pricing design by [dev-xo](https://github.com/dev-xo). See his [remix
 
 ## License
 
-Licensed under the [MIT License](https://github.com/mw10013/cloudflare-react-router-saas/blob/main/LICENSE).
+Licensed under the [MIT License](https://github.com/mw10013/cloudflare-react-router-bui-saas/blob/main/LICENSE).

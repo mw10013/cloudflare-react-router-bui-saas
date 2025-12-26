@@ -33,7 +33,6 @@ import type { Stripe as StripeTypes } from "stripe";
 import * as React from "react";
 import * as Domain from "@/lib/domain";
 import * as Hono from "hono";
-import * as Rac from "react-aria-components";
 import * as ReactRouter from "react-router";
 import * as Stripe from "stripe";
 import * as z from "zod";

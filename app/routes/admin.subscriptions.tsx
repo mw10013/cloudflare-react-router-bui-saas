@@ -1,7 +1,28 @@
 import type { Route } from "./+types/admin.subscriptions";
-import * as Oui from "@/components/ui/oui-index";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { RequestContext } from "@/lib/request-context";
 import { invariant } from "@epic-web/invariant";
+import { Search } from "lucide-react";
 import * as ReactRouter from "react-router";
 import * as z from "zod";
 
@@ -51,36 +72,47 @@ export default function RouteComponent({ loaderData }: Route.ComponentProps) {
       </header>
 
       <div>
-        <Oui.SearchField
-          aria-label="Filter by email"
-          defaultValue={loaderData.filter ?? ""}
-          name="filter"
-          onSubmit={(filter: string) =>
-            void navigate(`./?filter=${encodeURIComponent(filter)}&page=1`)
-          }
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            const formData = new FormData(e.currentTarget);
+            const filter = formData.get("filter");
+            if (typeof filter === "string")
+              void navigate(`./?filter=${encodeURIComponent(filter)}&page=1`);
+          }}
         >
-          <Oui.Input placeholder="Filter by email..." />
-        </Oui.SearchField>
+          <InputGroup>
+            <InputGroupInput
+              name="filter"
+              defaultValue={loaderData.filter ?? ""}
+              placeholder="Filter by email..."
+              aria-label="Filter by email"
+            />
+            <InputGroupAddon>
+              <Search className="size-4" />
+            </InputGroupAddon>
+          </InputGroup>
+        </form>
       </div>
 
-      <Oui.Table aria-label="Subscriptions">
-        <Oui.TableHeader>
-          <Oui.Column isRowHeader className="w-8">
-            Id
-          </Oui.Column>
-          <Oui.Column>Email</Oui.Column>
-          <Oui.Column>Plan</Oui.Column>
-          <Oui.Column>Status</Oui.Column>
-          <Oui.Column>Stripe Subscription ID</Oui.Column>
-        </Oui.TableHeader>
-        <Oui.TableBody items={loaderData.subscriptions}>
-          {(subscription) => (
-            <Oui.Row id={subscription.subscriptionId}>
-              <Oui.Cell>{subscription.subscriptionId}</Oui.Cell>
-              <Oui.Cell>{subscription.user.email}</Oui.Cell>
-              <Oui.Cell>{subscription.plan}</Oui.Cell>
-              <Oui.Cell>{subscription.status}</Oui.Cell>
-              <Oui.Cell>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-8">Id</TableHead>
+            <TableHead>Email</TableHead>
+            <TableHead>Plan</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Stripe Subscription ID</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {loaderData.subscriptions.map((subscription) => (
+            <TableRow key={subscription.subscriptionId}>
+              <TableCell>{subscription.subscriptionId}</TableCell>
+              <TableCell>{subscription.user.email}</TableCell>
+              <TableCell>{subscription.plan}</TableCell>
+              <TableCell>{subscription.status}</TableCell>
+              <TableCell>
                 {subscription.stripeSubscriptionId ? (
                   <a
                     href={`https://dashboard.stripe.com/subscriptions/${subscription.stripeSubscriptionId}`}
@@ -92,56 +124,58 @@ export default function RouteComponent({ loaderData }: Route.ComponentProps) {
                 ) : (
                   ""
                 )}
-              </Oui.Cell>
-            </Oui.Row>
-          )}
-        </Oui.TableBody>
-      </Oui.Table>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
 
       {loaderData.pageCount > 1 && (
-        <Oui.Pagination selectedKeys={[loaderData.page]}>
-          <Oui.PaginationItem
-            id="prev"
-            href={`/admin/subscriptions?page=${String(
-              loaderData.page > 1 ? loaderData.page - 1 : 1,
-            )}${
-              loaderData.filter
-                ? `&filter=${encodeURIComponent(loaderData.filter)}`
-                : ""
-            }`}
-            isDisabled={loaderData.page <= 1}
-          >
-            Previous
-          </Oui.PaginationItem>
-          {Array.from({ length: loaderData.pageCount }, (_, i) => (
-            <Oui.PaginationItem
-              key={i + 1}
-              id={String(i + 1)}
-              href={`/admin/subscriptions?page=${String(i + 1)}${
-                loaderData.filter
-                  ? `&filter=${encodeURIComponent(loaderData.filter)}`
-                  : ""
-              }`}
-            >
-              {i + 1}
-            </Oui.PaginationItem>
-          ))}
-          <Oui.PaginationItem
-            id="next"
-            href={`/admin/subscriptions?page=${String(
-              loaderData.page < loaderData.pageCount
-                ? loaderData.page + 1
-                : loaderData.pageCount,
-            )}${
-              loaderData.filter
-                ? `&filter=${encodeURIComponent(loaderData.filter)}`
-                : ""
-            }`}
-            isDisabled={loaderData.page >= loaderData.pageCount}
-          >
-            Next
-          </Oui.PaginationItem>
-        </Oui.Pagination>
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                href={`/admin/subscriptions?page=${String(
+                  loaderData.page > 1 ? loaderData.page - 1 : 1,
+                )}${
+                  loaderData.filter
+                    ? `&filter=${encodeURIComponent(loaderData.filter)}`
+                    : ""
+                }`}
+              />
+            </PaginationItem>
+            {Array.from({ length: loaderData.pageCount }, (_, i) => {
+              const page = i + 1;
+              return (
+                <PaginationItem key={page}>
+                  <PaginationLink
+                    href={`/admin/subscriptions?page=${String(page)}${
+                      loaderData.filter
+                        ? `&filter=${encodeURIComponent(loaderData.filter)}`
+                        : ""
+                    }`}
+                    isActive={page === loaderData.page}
+                  >
+                    {page}
+                  </PaginationLink>
+                </PaginationItem>
+              );
+            })}
+            <PaginationItem>
+              <PaginationNext
+                href={`/admin/subscriptions?page=${String(
+                  loaderData.page < loaderData.pageCount
+                    ? loaderData.page + 1
+                    : loaderData.pageCount,
+                )}${
+                  loaderData.filter
+                    ? `&filter=${encodeURIComponent(loaderData.filter)}`
+                    : ""
+                }`}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
       )}
     </div>
   );

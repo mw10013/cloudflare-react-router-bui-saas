@@ -132,6 +132,7 @@ describe("user authentication flow", () => {
       request,
       context: await c.context(),
       params: {},
+      unstable_pattern: "/login",
     });
     expect(c.mockSendMagicLink).toHaveBeenCalledTimes(1);
     magicLinkUrl = (c.mockSendMagicLink.mock.calls[0][0] as { url: string })
@@ -160,6 +161,7 @@ describe("user authentication flow", () => {
       request,
       context: await testUser.context(),
       params: {},
+      unstable_pattern: "/signout",
     });
 
     invariant(response instanceof Response, "Expected Response");
@@ -186,6 +188,7 @@ describe("user authentication flow", () => {
       request: loginRequest,
       context: await c.context(),
       params: {},
+      unstable_pattern: "/login",
     });
 
     const newMagicLinkUrl = (
@@ -212,6 +215,7 @@ describe("user authentication flow", () => {
       request: loaderRequest,
       context: await testUser.context(),
       params: {},
+      unstable_pattern: "/magic-link",
     });
 
     // The loader should redirect user to /app
@@ -232,10 +236,11 @@ describe("user authentication flow", () => {
       request,
       context: await c.context(),
       params: {},
+      unstable_pattern: "/login",
     });
 
     expect(result.success).toBe(false);
-    expect(result.validationErrors?.email).toBeDefined();
+    expect(result.errorMap?.onSubmit.fields.email).toBeDefined();
   });
 });
 
@@ -325,6 +330,7 @@ describe("accept invitation flow", () => {
       request: new Request("http://irrelevant.com"),
       context: await c.context(),
       params: { invitationId },
+      unstable_pattern: "/accept-invitation/:invitationId",
     });
 
     expect(result.needsAuth).toBe(true);
@@ -336,6 +342,7 @@ describe("accept invitation flow", () => {
       request: new Request("http://irrelevant.com"),
       context: await inviteeUser.context(),
       params: { invitationId },
+      unstable_pattern: "/accept-invitation/:invitationId",
     });
 
     expect(result.needsAuth).toBe(false);
@@ -354,6 +361,7 @@ describe("accept invitation flow", () => {
       request,
       context: await inviteeUser.context(),
       params: { invitationId },
+      unstable_pattern: "/accept-invitation/:invitationId",
     });
 
     invariant(response instanceof Response, "Expected Response");
@@ -421,6 +429,7 @@ describe("reject invitation flow", () => {
       request,
       context: await inviteeUser.context(),
       params: { invitationId },
+      unstable_pattern: "/accept-invitation/:invitationId",
     });
 
     invariant(response instanceof Response, "Expected Response");
@@ -452,6 +461,7 @@ describe("admin bootstrap", () => {
       request,
       context: await c.context(),
       params: {},
+      unstable_pattern: "/login",
     });
     expect(c.mockSendMagicLink).toHaveBeenCalledTimes(1);
     magicLinkUrl = (c.mockSendMagicLink.mock.calls[0][0] as { url: string })

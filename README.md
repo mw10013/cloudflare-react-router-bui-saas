@@ -7,7 +7,7 @@
   Lightweight saas template packed with essential functionality for Cloudflare and React Router
   </p>
   <p>
-  Cloudflare • React Router • Better Auth • Stripe • Shadcn with Base UI • SES
+  Cloudflare • React Router • Better Auth • Stripe • Shadcn on Base UI • SES
   </p>
   <p>
     <a href="https://crrbuis.devxo.workers.dev/">Demo</a>

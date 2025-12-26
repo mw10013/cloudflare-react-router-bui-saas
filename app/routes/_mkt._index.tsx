@@ -283,27 +283,49 @@ export default function RouteComponent() {
         <p className="text-muted-foreground text-2xl leading-normal font-medium text-wrap sm:max-w-[80%] lg:text-3xl">
           Build with{" "}
           <a
-            href="https://github.com/mw10013/oui"
+            href="https://ui.shadcn.com"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 hover:underline"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
+              viewBox="0 0 256 256"
               fill="none"
               stroke="currentColor"
-              strokeWidth={2}
+              strokeWidth={32}
               strokeLinecap="round"
               strokeLinejoin="round"
               className="text-primary size-6"
               aria-hidden="true"
             >
-              <circle cx={12} cy={12} r={10} />
+              <line x1="208" y1="128" x2="128" y2="208" />
+              <line x1="192" y1="40" x2="40" y2="192" />
             </svg>
-            <span className="text-primary font-semibold">Oui</span>
+            <span className="text-primary font-semibold">Shadcn</span>
           </a>{" "}
-          components, authenticate users with{" "}
+          components on{" "}
+          <a
+            href="https://base-ui.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 hover:underline"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="17"
+              height="24"
+              viewBox="0 0 17 24"
+              fill="currentColor"
+              className="text-primary size-6"
+              aria-hidden="true"
+            >
+              <path d="M9.5001 7.01537C9.2245 6.99837 9 7.22385 9 7.49999V23C13.4183 23 17 19.4183 17 15C17 10.7497 13.6854 7.27351 9.5001 7.01537Z" />
+              <path d="M8 9.8V12V23C3.58172 23 0 19.0601 0 14.2V12V1C4.41828 1 8 4.93989 8 9.8Z" />
+            </svg>
+            <span className="text-primary font-semibold">Base UI</span>
+          </a>
+          , authenticate users with{" "}
           <a
             href="https://www.better-auth.com/"
             target="_blank"

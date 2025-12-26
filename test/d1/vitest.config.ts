@@ -9,9 +9,15 @@ export default defineWorkersProject(async () => {
   const migrationsPath = path.join(__dirname, "../../migrations");
   const migrations = await readD1Migrations(migrationsPath);
   return {
-    plugins: [tsconfigPaths()],
+    plugins: [
+      tsconfigPaths({
+        projects: [path.resolve(__dirname, "../../tsconfig.json")],
+      }),
+    ],
     ssr: {
-      noExternal: ["better-auth", "@better-auth/stripe"],
+      // Cloudflare workers runtime can't import named exports from CommonJS deps (e.g. `import { tabbable } from "tabbable"`).
+      // Bundle these so Vite rewrites CJS/ESM interop for tests.
+      noExternal: ["better-auth", "@better-auth/stripe", "@base-ui/react", "tabbable"],
     },
     test: {
       include: ["*.test.ts"],

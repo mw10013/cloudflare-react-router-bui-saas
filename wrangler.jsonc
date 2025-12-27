@@ -65,13 +65,13 @@
         {
           "binding": "D1",
           "database_name": "crrbuis-d1-production",
-          "database_id": "2e3e1b77-b865-4b25-af2e-a2d6da921259" // crrbuis-d1-production
+          "database_id": "e14476b7-6127-401e-960d-4b6541c36b5e" // crrbuis-d1-production
         }
       ],
       "kv_namespaces": [
         {
           "binding": "KV",
-          "id": "7ab5e04f8036473d9266c214d48fdbc2" // crrbuis-kv-production
+          "id": "e93b7a841ac64bc3a878a9b752d129d4" // crrbuis-kv-production
         }
       ],
       "ratelimits": [

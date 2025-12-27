@@ -66,13 +66,13 @@ function Html({
         {children}
         <ReactRouter.ScrollRestoration />
         <ReactRouter.Scripts />
-        {isAnalyticsEnabled && (
+        {/* {isAnalyticsEnabled && (
           <script
             defer
             src="https://static.cloudflareinsights.com/beacon.min.js"
             data-cf-beacon='{"token": "cda8ee53d031493ea855f227fcd90239"}'
           ></script>
-        )}
+        )} */}
       </body>
     </html>
   );

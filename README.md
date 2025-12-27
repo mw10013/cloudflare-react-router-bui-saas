@@ -42,7 +42,7 @@
   - Customer and subscription oversight
 
 - **UI/UX Components:**
-  - Shadcn with Base UI
+  - Shadcn with Base UI and TanStack Form integration
   - Theme switching (light/dark/system) with persistence
 
 - **Testing Infrastructure:**
@@ -113,7 +113,7 @@ pnpm test:e2e
 ## Deploy
 
 - pnpm exec wrangler kv namespace create crrbuis-kv-production
-- Update wrangler.jsonc production kv_namespaces and queues
+- Update wrangler.jsonc production kv_namespaces
 - pnpm d1:reset:PRODUCTION
 - pnpm deploy:PRODUCTION
 - pnpm exec wrangler secret put SECRET --env production
